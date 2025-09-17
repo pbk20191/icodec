@@ -11,17 +11,17 @@ process.chdir(dirname(import.meta.dirname));
 const repositories = new RepositoryManager({
 	mozjpeg: ["v4.1.5", "https://github.com/mozilla/mozjpeg"],
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
-	libwebp: ["v1.5.0", "https://github.com/webmproject/libwebp"],
+	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
 	libjxl: ["v0.11.1", "https://github.com/libjxl/libjxl"],
 	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
-	aom: ["v3.12.1", "https://aomedia.googlesource.com/aom"],
+	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
 	libwebp2: [
-		"75878e84787870b62786e3de1f02da7ba0e40b5c",
+		"dbbdedb69a281d76481ada57d6820b9d4c933749",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
 	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["v1.19.8", "https://github.com/strukturag/libheif"],
+	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
 	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
@@ -32,6 +32,7 @@ function buildWebPLibrary() {
 		outFile: "vendor/libwebp/libwebp.a",
 		src: "vendor/libwebp",
 		flags: "-msse2 -msse4.1 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP",
+		cflags: "-std=c89",
 		options: {
 			WEBP_ENABLE_SIMD: 1,
 			WEBP_BUILD_CWEBP: 0,
@@ -425,14 +426,14 @@ if (process.argv[2] === "update") {
 	config.updateFromArgs(argv.slice(2));
 	mkdirSync(config.outDir, { recursive: true });
 
-	// buildWebP();
-	// buildAVIF();
-	// buildJXL();
-	// buildQOI();
-	// buildMozJPEG();
-	// buildWebP2();
+	buildWebP();
+	buildAVIF();
+	buildJXL();
+	buildQOI();
+	buildMozJPEG();
+	buildWebP2();
 	buildHEIC();
-	// buildPNGQuant();
+	buildPNGQuant();
 	// buildVVIC();
 
 	repositories.writeVersionsJSON();
