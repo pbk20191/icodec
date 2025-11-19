@@ -30,7 +30,7 @@ export const config = {
 	/**
 	 * Specify -G parameter of cmake, e.g. "Ninja"
 	 */
-	cmakeBuilder: null,
+	cmakeBuilder: "Ninja",
 
 	/**
 	 * The maximum number of concurrent processes to use when building.
@@ -142,7 +142,7 @@ export function emcc(input, sourceArguments) {
 
 		/*
 		 * Default 64KB is too small, causes OOM in some cases.
-		 * libwebp sets it to 5MB, but 2MB seems to be enough.
+		 * libwebp sets it to 5MB, but 2MB seems enough.
 		 */
 		"-s", "STACK_SIZE=2MB",
 
@@ -161,7 +161,7 @@ export function emcc(input, sourceArguments) {
 	} else {
 		args.push("-fno-exceptions");
 		args.push("-s", "FILESYSTEM=0");
-		args.push("-s", "ENVIRONMENT=web");
+		args.push("-s", "ENVIRONMENT=web,worker");
 	}
 
 	args.push(...sourceArguments);

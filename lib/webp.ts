@@ -123,7 +123,7 @@ export interface Options {
 	 * Turns auto-filter on. This algorithm will spend additional time optimizing the
 	 * filtering strength to reach a well-balanced quality.
 	 *
-	 * @default 0
+	 * @default false
 	 */
 	autofilter?: boolean;
 

@@ -15,6 +15,19 @@ export enum AVIFTune {
 	SSIM,
 }
 
+function getDefaultThreadCount(): number {
+	const navigatorEx = typeof globalThis === "object"
+		? (globalThis as typeof globalThis & {
+			navigator?: { hardwareConcurrency?: number };
+		}).navigator
+		: undefined;
+	const hardwareConcurrency = navigatorEx?.hardwareConcurrency ?? 0;
+	if (hardwareConcurrency > 0) {
+		return Math.max(2, Math.min(8, hardwareConcurrency));
+	}
+	return 4;
+}
+
 export interface Options {
 	/**
 	 * [0 - 100], 0 = worst quality, 100 = lossless
@@ -94,6 +107,14 @@ export interface Options {
 	 * @default false
 	 */
 	sharpYUV?: boolean;
+
+	/**
+	 * Maximum number of coding threads to use. Higher values generally speed up encoding
+	 * but require the module to be built with enough worker threads.
+	 *
+	 * @default clamp(hardwareConcurrency, 2, 8) or 4 if unavailable
+	 */
+	threads?: number;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -109,6 +130,7 @@ export const defaultOptions: Required<Options> = {
 	denoiseLevel: 0,
 	tune: AVIFTune.Auto,
 	sharpYUV: false,
+	threads: getDefaultThreadCount(),
 };
 
 export const mimeType = "image/avif";

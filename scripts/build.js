@@ -139,6 +139,8 @@ export function buildJXL() {
 	emcc("cpp/jxl_dec.cpp", includes);
 }
 
+const AVIF_THREAD_POOL_SIZE = 8;
+
 function buildAVIFPartial(isEncode) {
 	const typeName = isEncode ? "enc" : "dec";
 	emcmake({
@@ -160,7 +162,7 @@ function buildAVIFPartial(isEncode) {
 			CONFIG_RUNTIME_CPU_DETECT: 0,
 			CONFIG_WEBM_IO: 0,
 
-			CONFIG_MULTITHREAD: 0,
+			CONFIG_MULTITHREAD: isEncode ? 1 : 0,
 			CONFIG_AV1_HIGHBITDEPTH: 1,
 
 			CONFIG_AV1_ENCODER: isEncode,
@@ -189,12 +191,17 @@ function buildAVIFPartial(isEncode) {
 			AVIF_CODEC_AOM_DECODE: 1 - isEncode,
 		},
 	});
-	emcc(`cpp/avif_${typeName}.cpp`, [
+	const args = [
 		"-I vendor/libavif/include",
 		"vendor/libwebp/libsharpyuv.a",
 		`vendor/aom/${typeName}-build/libaom.a`,
 		`vendor/libavif/${typeName}-build/libavif.a`,
-	]);
+	];
+	if (isEncode) {
+		args.unshift("-pthread");
+		args.push("-s", `PTHREAD_POOL_SIZE=${AVIF_THREAD_POOL_SIZE}`);
+	}
+	emcc(`cpp/avif_${typeName}.cpp`, args);
 }
 
 export function buildAVIF() {

@@ -28,6 +28,7 @@ struct AvifOptions
 	bool sharpYUV;
 
 	uint32_t bitDepth;
+	int threads;
 };
 
 /**
@@ -85,6 +86,7 @@ val encode(std::string pixels, uint32_t width, uint32_t height, AvifOptions opti
 	encoder->quality = options.quality;
 	encoder->qualityAlpha = options.qualityAlpha;
 	encoder->speed = options.speed;
+	encoder->maxThreads = options.threads > 1 ? options.threads : 1;
 	encoder->autoTiling = options.autoTiling;
 	encoder->tileRowsLog2 = options.tileRowsLog2;
 	encoder->tileColsLog2 = options.tileColsLog2;
@@ -131,5 +133,6 @@ EMSCRIPTEN_BINDINGS(icodec_module_AVIF)
 		.field("denoiseLevel", &AvifOptions::denoiseLevel)
 		.field("subsample", &AvifOptions::subsample)
 		.field("sharpYUV", &AvifOptions::sharpYUV)
-		.field("bitDepth", &AvifOptions::bitDepth);
+		.field("bitDepth", &AvifOptions::bitDepth)
+		.field("threads", &AvifOptions::threads);
 }
