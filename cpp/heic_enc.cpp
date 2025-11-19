@@ -15,6 +15,7 @@ struct HeicOptions
 	bool sharpYUV;
 
 	int bitDepth;
+	int threads;
 };
 
 struct JSWriter : public heif::Context::Writer
@@ -50,8 +51,8 @@ val encode(std::string pixels, int width, int height, HeicOptions options)
 
 	// Planes can have padding, so we need copy the data by row.
 	auto row_bytes = width * CHANNELS_RGBA * ((options.bitDepth + 7) / 8);
-	int stride;
-	auto p = image.get_plane(heif_channel_interleaved, &stride);
+	size_t stride;
+	const uint8_t* p = image.get_plane(heif_channel_interleaved, &stride);
 	for (auto y = 0; y < height; y++)
 	{
 		memcpy(p + stride * y, &pixels[row_bytes * y], stride);
@@ -71,6 +72,18 @@ val encode(std::string pixels, int width, int height, HeicOptions options)
 	encoder.set_integer_parameter("tu-intra-depth", options.tuIntraDepth);
 	encoder.set_integer_parameter("complexity", options.complexity);
 	encoder.set_string_parameter("chroma", options.chroma);
+
+	if (options.threads > 0)
+	{
+		const int poolThreads = options.threads;
+		encoder.set_string_parameter("x265:pools", std::to_string(poolThreads));
+		int frameThreads = poolThreads;
+		if (frameThreads > 4)
+		{
+			frameThreads = 4;
+		}
+		encoder.set_string_parameter("x265:frame-threads", std::to_string(frameThreads));
+	}
 
 	auto context = heif::Context();
 	auto config = heif::Context::EncodingOptions();
@@ -113,5 +126,6 @@ EMSCRIPTEN_BINDINGS(icodec_module_HEIC)
 		.field("complexity", &HeicOptions::complexity)
 		.field("chroma", &HeicOptions::chroma)
 		.field("sharpYUV", &HeicOptions::sharpYUV)
-		.field("bitDepth", &HeicOptions::bitDepth);
+		.field("bitDepth", &HeicOptions::bitDepth)
+		.field("threads", &HeicOptions::threads);
 }

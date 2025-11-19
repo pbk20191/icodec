@@ -86,7 +86,7 @@ val encode(std::string pixels, uint32_t width, uint32_t height, AvifOptions opti
 	encoder->quality = options.quality;
 	encoder->qualityAlpha = options.qualityAlpha;
 	encoder->speed = options.speed;
-	encoder->maxThreads = options.threads > 1 ? options.threads : 1;
+	encoder->maxThreads = options.threads;
 	encoder->autoTiling = options.autoTiling;
 	encoder->tileRowsLog2 = options.tileRowsLog2;
 	encoder->tileColsLog2 = options.tileColsLog2;

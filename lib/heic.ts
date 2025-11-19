@@ -8,6 +8,19 @@ export const Subsampling = ["420", "422", "444"] as const;
 
 export const Tune = ["psnr", "ssim", "grain", "fastdecode"] as const;
 
+function getDefaultThreadCount(): number {
+	const navigatorEx = typeof globalThis === "object"
+		? (globalThis as typeof globalThis & {
+			navigator?: { hardwareConcurrency?: number };
+		}).navigator
+		: undefined;
+	const hardwareConcurrency = navigatorEx?.hardwareConcurrency ?? 0;
+	if (hardwareConcurrency > 0) {
+		return Math.max(2, Math.min(8, hardwareConcurrency));
+	}
+	return 4;
+}
+
 export interface Options {
 	/**
 	 * Quality-based VBR [0, 100], it will map to `--crf` parameter of x265.
@@ -71,6 +84,14 @@ export interface Options {
 	 * @default false
 	 */
 	sharpYUV?: boolean;
+
+	/**
+	 * Maximum number of worker threads x265 should use during encoding.
+	 * Increase for faster encodes if your browser allows more WebAssembly workers.
+	 *
+	 * @default clamp(hardwareConcurrency, 2, 8) or 4 if unavailable
+	 */
+	threads?: number;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -82,6 +103,7 @@ export const defaultOptions: Required<Options> = {
 	complexity: 50,
 	chroma: "420",
 	sharpYUV: false,
+	threads: getDefaultThreadCount(),
 };
 
 export const mimeType = "image/heic";

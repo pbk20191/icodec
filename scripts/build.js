@@ -262,7 +262,7 @@ function buildHEICPartial(isEncode) {
 			WITH_AOM_ENCODER: 0,
 			WITH_EXAMPLES: 0,
 			WITH_GDK_PIXBUF: 0,
-			ENABLE_MULTITHREADING_SUPPORT: 0,
+			ENABLE_MULTITHREADING_SUPPORT: 1,
 			BUILD_TESTING: 0,
 			BUILD_SHARED_LIBS: 0,
 
@@ -279,6 +279,8 @@ function buildHEICPartial(isEncode) {
 		},
 	});
 }
+
+const HEIC_THREAD_POOL_SIZE = 8;
 
 function buildHEIC() {
 	// Must delete x265/source/CmakeLists.txt lines 240-248 for 32-bit build.
@@ -338,7 +340,6 @@ function buildHEIC() {
 		},
 	});
 
-	// TODO: single thread
 	buildHEICPartial(true);
 	buildHEICPartial(false);
 
@@ -347,7 +348,7 @@ function buildHEIC() {
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
 		"-pthread",
-		"-s", "PTHREAD_POOL_SIZE=2",
+		"-s", `PTHREAD_POOL_SIZE=${HEIC_THREAD_POOL_SIZE}`,
 		"-fexceptions",
 		"vendor/libwebp/libsharpyuv.a",
 		"vendor/x265/source/libx265.a",
@@ -365,7 +366,7 @@ function buildHEIC() {
 		"vendor/heic_dec/libheif/libheif.a",
 	]);
 
-	fixPThreadImpl("dist/heic-enc.js", 1);
+	fixPThreadImpl("dist/heic-enc.js", HEIC_THREAD_POOL_SIZE);
 }
 
 function buildVVIC() {
@@ -444,11 +445,11 @@ if (process.argv[2] === "update") {
 
 	// buildWebP();
 	// buildAVIF();
-	buildJXL();
+	// buildJXL();
 	// buildQOI();
 	// buildMozJPEG();
 	// buildWebP2();
-	// buildHEIC();
+	buildHEIC();
 	// buildPNGQuant();
 	// buildVVIC();
 
