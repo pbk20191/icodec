@@ -105,6 +105,8 @@ export function buildWebP() {
 	]);
 }
 
+const JXL_THREAD_POOL_SIZE = 8;
+
 export function buildJXL() {
 	// highway uses CJS scripts in build, but our project is ESM.
 	writeFileSync("vendor/libjxl/third_party/highway/package.json", "{}");
@@ -129,13 +131,20 @@ export function buildJXL() {
 		"-I vendor/libjxl/third_party/highway",
 		"-I vendor/libjxl/lib/include",
 		"vendor/libjxl/lib/libjxl.a",
+		"vendor/libjxl/lib/libjxl_threads.a",
 		"vendor/libjxl/lib/libjxl_cms.a",
 		"vendor/libjxl/third_party/brotli/libbrotlidec.a",
 		"vendor/libjxl/third_party/brotli/libbrotlienc.a",
 		"vendor/libjxl/third_party/brotli/libbrotlicommon.a",
 		"vendor/libjxl/third_party/highway/libhwy.a",
 	];
-	emcc("cpp/jxl_enc.cpp", includes);
+	const encoderArgs = [
+		"-pthread",
+		"-s", "ENVIRONMENT=web,worker",
+		"-s", `PTHREAD_POOL_SIZE=${JXL_THREAD_POOL_SIZE}`,
+		...includes,
+	];
+	emcc("cpp/jxl_enc.cpp", encoderArgs);
 	emcc("cpp/jxl_dec.cpp", includes);
 }
 
@@ -433,14 +442,14 @@ if (process.argv[2] === "update") {
 	config.updateFromArgs(argv.slice(2));
 	mkdirSync(config.outDir, { recursive: true });
 
-	buildWebP();
-	buildAVIF();
+	// buildWebP();
+	// buildAVIF();
 	buildJXL();
-	buildQOI();
-	buildMozJPEG();
-	buildWebP2();
-	buildHEIC();
-	buildPNGQuant();
+	// buildQOI();
+	// buildMozJPEG();
+	// buildWebP2();
+	// buildHEIC();
+	// buildPNGQuant();
 	// buildVVIC();
 
 	repositories.writeVersionsJSON();

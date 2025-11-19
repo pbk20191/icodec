@@ -1,6 +1,7 @@
 #include <emscripten/bind.h>
 #include "icodec.h"
 #include "jxl/encode_cxx.h"
+#include "jxl/thread_parallel_runner_cxx.h"
 
 #define SET_OPTION(key, value)                                                     \
 	if (JxlEncoderFrameSettingsSetOption(settings, key, value) != JXL_ENC_SUCCESS) \
@@ -62,12 +63,24 @@ struct JXLOptions
 	int modularPredictor;
 
 	uint32_t bitDepth;
+	int threads;
 };
 
 val encode(std::string pixels, uint32_t width, uint32_t height, JXLOptions options)
 {
 	const JxlEncoderPtr encoder = JxlEncoderMake(nullptr);
 	JxlEncoderAllowExpertOptions(encoder.get());
+
+	int requestedThreads = options.threads > 0 ? options.threads : 1;
+	auto runner = JxlThreadParallelRunnerMake(nullptr, static_cast<size_t>(requestedThreads));
+	if (runner == nullptr)
+	{
+		return val("JxlThreadParallelRunnerMake");
+	}
+	if (JxlEncoderSetParallelRunner(encoder.get(), JxlThreadParallelRunner, runner.get()) != JXL_ENC_SUCCESS)
+	{
+		return val("JxlEncoderSetParallelRunner");
+	}
 
 	JxlBasicInfo info;
 	JxlEncoderInitBasicInfo(&info);
@@ -157,5 +170,6 @@ EMSCRIPTEN_BINDINGS(icodec_module_JXL)
 		.field("iterations", &JXLOptions::iterations)
 		.field("modularColorspace", &JXLOptions::modularColorspace)
 		.field("modularPredictor", &JXLOptions::modularPredictor)
-		.field("bitDepth", &JXLOptions::bitDepth);
+		.field("bitDepth", &JXLOptions::bitDepth)
+		.field("threads", &JXLOptions::threads);
 }
