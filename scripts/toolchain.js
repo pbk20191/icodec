@@ -1,6 +1,6 @@
 import { basename, extname, join } from "node:path";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 
 export const config = {
 	/**
@@ -58,24 +58,6 @@ export const config = {
 		}
 	},
 };
-
-export function fixPThreadImpl(name, concurrency) {
-	const original = readFileSync(name, "utf8");
-	let code = original.replace('navigator["hardwareConcurrency"]', concurrency);
-
-	// https://github.com/emscripten-core/emscripten/issues/22394
-	const match = code.match(/var\s+workerOptions\s*=\s*({[^}]+});/);
-	const before = code.slice(0, match.index);
-	const after = code.slice(match.index + match[0].length);
-	const usage = /workerOptions(?![\\w$])/;
-	usage.lastIndex = match.index + match[0].length;
-	code = before + after.replace(usage, match[1]);
-
-	writeFileSync(name, code);
-	if (original === code) {
-		throw new Error(name + ": Cannot find the pattern to replace");
-	}
-}
 
 export function emcmake(settings) {
 	const { outFile, src, dist = src, flags, options = {} } = settings;

@@ -121,6 +121,7 @@ EMSCRIPTEN_BINDINGS(icodec_module_AVIF)
 	function("encode", &encode);
 
 	value_object<AvifOptions>("AvifOptions")
+		.field("threads", &AvifOptions::threads)
 		.field("quality", &AvifOptions::quality)
 		.field("qualityAlpha", &AvifOptions::qualityAlpha)
 		.field("tileRowsLog2", &AvifOptions::tileRowsLog2)
@@ -133,6 +134,5 @@ EMSCRIPTEN_BINDINGS(icodec_module_AVIF)
 		.field("denoiseLevel", &AvifOptions::denoiseLevel)
 		.field("subsample", &AvifOptions::subsample)
 		.field("sharpYUV", &AvifOptions::sharpYUV)
-		.field("bitDepth", &AvifOptions::bitDepth)
-		.field("threads", &AvifOptions::threads);
+		.field("bitDepth", &AvifOptions::bitDepth);
 }

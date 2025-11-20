@@ -71,8 +71,7 @@ val encode(std::string pixels, uint32_t width, uint32_t height, JXLOptions optio
 	const JxlEncoderPtr encoder = JxlEncoderMake(nullptr);
 	JxlEncoderAllowExpertOptions(encoder.get());
 
-	int requestedThreads = options.threads > 0 ? options.threads : 1;
-	auto runner = JxlThreadParallelRunnerMake(nullptr, static_cast<size_t>(requestedThreads));
+	auto runner = JxlThreadParallelRunnerMake(nullptr, static_cast<size_t>(options.threads));
 	if (runner == nullptr)
 	{
 		return val("JxlThreadParallelRunnerMake");
@@ -151,6 +150,7 @@ EMSCRIPTEN_BINDINGS(icodec_module_JXL)
 	function("encode", &encode);
 
 	value_object<JXLOptions>("JXLOptions")
+		.field("threads", &JXLOptions::threads)
 		.field("lossless", &JXLOptions::lossless)
 		.field("quality", &JXLOptions::quality)
 		.field("alphaQuality", &JXLOptions::alphaQuality)
@@ -170,6 +170,5 @@ EMSCRIPTEN_BINDINGS(icodec_module_JXL)
 		.field("iterations", &JXLOptions::iterations)
 		.field("modularColorspace", &JXLOptions::modularColorspace)
 		.field("modularPredictor", &JXLOptions::modularPredictor)
-		.field("bitDepth", &JXLOptions::bitDepth)
-		.field("threads", &JXLOptions::threads);
+		.field("bitDepth", &JXLOptions::bitDepth);
 }

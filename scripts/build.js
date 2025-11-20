@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { dirname } from "node:path";
 import { argv } from "node:process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
-import { config, emcc, emcmake, fixPThreadImpl, wasmPack } from "./toolchain.js";
+import { config, emcc, emcmake, wasmPack } from "./toolchain.js";
 import { removeRange, RepositoryManager } from "./repository.js";
 
 // Ensure we're on the project root directory.
@@ -16,10 +16,13 @@ const repositories = new RepositoryManager({
 	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
 	libwebp2: [
-		"dbbdedb69a281d76481ada57d6820b9d4c933749",
+		"7a281adb605c1fdc860c96a029860bff647970b1",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
-	x265: ["master", "https://bitbucket.org/multicoreware/x265_git"],
+	x265: [
+		"9e551a994f970a24f0e49bcebe3d43ef08448b01",
+		"https://bitbucket.org/multicoreware/x265_git",
+	],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
@@ -105,8 +108,6 @@ export function buildWebP() {
 	]);
 }
 
-const JXL_THREAD_POOL_SIZE = 8;
-
 export function buildJXL() {
 	// highway uses CJS scripts in build, but our project is ESM.
 	writeFileSync("vendor/libjxl/third_party/highway/package.json", "{}");
@@ -140,15 +141,11 @@ export function buildJXL() {
 	];
 	const encoderArgs = [
 		"-pthread",
-		"-s", "ENVIRONMENT=web,worker",
-		"-s", `PTHREAD_POOL_SIZE=${JXL_THREAD_POOL_SIZE}`,
 		...includes,
 	];
 	emcc("cpp/jxl_enc.cpp", encoderArgs);
 	emcc("cpp/jxl_dec.cpp", includes);
 }
-
-const AVIF_THREAD_POOL_SIZE = 8;
 
 function buildAVIFPartial(isEncode) {
 	const typeName = isEncode ? "enc" : "dec";
@@ -208,7 +205,6 @@ function buildAVIFPartial(isEncode) {
 	];
 	if (isEncode) {
 		args.unshift("-pthread");
-		args.push("-s", `PTHREAD_POOL_SIZE=${AVIF_THREAD_POOL_SIZE}`);
 	}
 	emcc(`cpp/avif_${typeName}.cpp`, args);
 }
@@ -234,8 +230,7 @@ export function buildWebP2() {
 			WP2_BUILD_EXTRAS: 0,
 			WP2_ENABLE_SIMD: 1,
 			WP2_USE_THREAD: 1,
-			// Fails in vdebug.cc
-			// WP2_REDUCED: 1,
+			// WP2_REDUCED: 1, // Fails in vdebug.cc
 		},
 	});
 	emcc("cpp/wp2_enc.cpp", [
@@ -282,8 +277,6 @@ function buildHEICPartial(isEncode) {
 		},
 	});
 }
-
-const HEIC_THREAD_POOL_SIZE = 8;
 
 function buildHEIC() {
 	// Must delete x265/source/CmakeLists.txt lines 240-248 for 32-bit build.
@@ -351,7 +344,6 @@ function buildHEIC() {
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
 		"-pthread",
-		"-s", `PTHREAD_POOL_SIZE=${HEIC_THREAD_POOL_SIZE}`,
 		"-fexceptions",
 		"vendor/libwebp/libsharpyuv.a",
 		"vendor/x265/source/libx265.a",
@@ -368,8 +360,6 @@ function buildHEIC() {
 		"vendor/libde265/libde265/libde265.a",
 		"vendor/heic_dec/libheif/libheif.a",
 	]);
-
-	fixPThreadImpl("dist/heic-enc.js", HEIC_THREAD_POOL_SIZE);
 }
 
 function buildVVIC() {
@@ -452,8 +442,8 @@ try {
 		// buildJXL();
 		// buildQOI();
 		// buildMozJPEG();
-		// buildWebP2();
-		buildHEIC();
+		buildWebP2();
+		// buildHEIC();
 		// buildPNGQuant();
 		// buildVVIC();
 

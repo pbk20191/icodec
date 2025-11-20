@@ -26,19 +26,6 @@ export enum Predictor {
 	Variable,
 }
 
-function getDefaultThreadCount(): number {
-	const navigatorEx = typeof globalThis === "object"
-		? (globalThis as typeof globalThis & {
-			navigator?: { hardwareConcurrency?: number };
-		}).navigator
-		: undefined;
-	const hardwareConcurrency = navigatorEx?.hardwareConcurrency ?? 0;
-	if (hardwareConcurrency > 0) {
-		return Math.max(2, Math.min(8, hardwareConcurrency));
-	}
-	return 4;
-}
-
 export interface Options {
 	/**
 	 * If true, encode the image without any loss.
@@ -213,6 +200,7 @@ export interface Options {
 }
 
 export const defaultOptions: Required<Options> = {
+	threads: 1,
 	lossless: false,
 	quality: 75,
 	alphaQuality: 100,
@@ -232,7 +220,6 @@ export const defaultOptions: Required<Options> = {
 	iterations: -1,
 	modularColorspace: -1,
 	modularPredictor: Predictor.Default,
-	threads: getDefaultThreadCount(),
 };
 
 export const mimeType = "image/jxl";
