@@ -19,7 +19,7 @@ const repositories = new RepositoryManager({
 		"dbbdedb69a281d76481ada57d6820b9d4c933749",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
-	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
+	x265: ["master", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
@@ -233,8 +233,7 @@ export function buildWebP2() {
 			WP2_ENABLE_TESTS: 0,
 			WP2_BUILD_EXTRAS: 0,
 			WP2_ENABLE_SIMD: 1,
-			CMAKE_DISABLE_FIND_PACKAGE_Threads: 1,
-
+			WP2_USE_THREAD: 1,
 			// Fails in vdebug.cc
 			// WP2_REDUCED: 1,
 		},
@@ -265,6 +264,9 @@ function buildHEICPartial(isEncode) {
 			ENABLE_MULTITHREADING_SUPPORT: 1,
 			BUILD_TESTING: 0,
 			BUILD_SHARED_LIBS: 0,
+
+			EMSCRIPTEN_STANDALONE_WASM: 1,
+			__EMSCRIPTEN_STANDALONE_WASM__: 1,
 
 			...(isEncode ? {
 				LIBSHARPYUV_INCLUDE_DIR: "vendor/libwebp",
@@ -434,24 +436,28 @@ function buildVVIC() {
 	]);
 }
 
-repositories.download();
+try {
+	repositories.download();
 
-// To update a module, delete the directory then build.
-if (process.argv[2] === "update") {
-	await repositories.checkUpdate();
-} else {
-	config.updateFromArgs(argv.slice(2));
-	mkdirSync(config.outDir, { recursive: true });
+	// To update a module, delete the directory then build.
+	if (process.argv[2] === "update") {
+		await repositories.checkUpdate();
+	} else {
+		config.updateFromArgs(argv.slice(2));
+		mkdirSync(config.outDir, { recursive: true });
 
-	// buildWebP();
-	// buildAVIF();
-	// buildJXL();
-	// buildQOI();
-	// buildMozJPEG();
-	// buildWebP2();
-	buildHEIC();
-	// buildPNGQuant();
-	// buildVVIC();
+		// buildWebP();
+		// buildAVIF();
+		// buildJXL();
+		// buildQOI();
+		// buildMozJPEG();
+		// buildWebP2();
+		buildHEIC();
+		// buildPNGQuant();
+		// buildVVIC();
 
-	repositories.writeVersionsJSON();
+		repositories.writeVersionsJSON();
+	}
+} catch (e) {
+	if (e.pid) console.error(e.message); else throw e;
 }
