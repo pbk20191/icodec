@@ -9,6 +9,7 @@
 
 struct WP2Options
 {
+	int threads;
 	float quality;
 	float alpha_quality;
 	int effort;
@@ -34,6 +35,7 @@ val encode(std::string pixels, uint32_t width, uint32_t height, WP2Options optio
 	config.sns = options.sns;
 	config.error_diffusion = options.error_diffusion;
 	config.use_random_matrix = options.use_random_matrix;
+	config.thread_level = options.threads - 1;
 
 	// Must enable `keep_unmultiplied` and modify the format for exact lossless.
 	// https://chromium.googlesource.com/codecs/libwebp2/+/b65d168d3b2b8f8ec849134da2c3a5f034f1eb42/examples/cwp2.cc#868
@@ -58,6 +60,7 @@ EMSCRIPTEN_BINDINGS(icodec_module_WebP2)
 	function("encode", &encode);
 
 	value_object<WP2Options>("WP2Options")
+		.field("threads", &WP2Options::threads)
 		.field("quality", &WP2Options::quality)
 		.field("alphaQuality", &WP2Options::alpha_quality)
 		.field("effort", &WP2Options::effort)

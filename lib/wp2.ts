@@ -17,6 +17,7 @@ export enum Csp {
 }
 
 export interface Options {
+	threads: number;
 	/**
 	 * Range: [0 = smallest file, 100 = lossless], float type.
 	 * Quality 100 is strictly lossless.
@@ -76,6 +77,7 @@ export interface Options {
 }
 
 export const defaultOptions: Required<Options> = {
+	threads: 1,
 	quality: 75,
 	alphaQuality: 100,
 	effort: 5,

@@ -239,6 +239,7 @@ export function buildWebP2() {
 		},
 	});
 	emcc("cpp/wp2_enc.cpp", [
+		"-pthread",
 		"-I vendor/libwebp2",
 		"vendor/wp2_build/libwebp2.a",
 	]);
