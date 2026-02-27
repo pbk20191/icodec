@@ -11,7 +11,7 @@ process.chdir(dirname(import.meta.dirname));
 const repositories = new RepositoryManager({
 	mozjpeg: ["v4.1.5", "https://github.com/mozilla/mozjpeg"],
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
-	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
+	libwebp: ["v1.5.0", "https://github.com/webmproject/libwebp"],
 	libjxl: ["v0.11.1", "https://github.com/libjxl/libjxl"],
 	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
