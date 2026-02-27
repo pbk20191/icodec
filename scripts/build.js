@@ -437,14 +437,14 @@ try {
 		config.updateFromArgs(argv.slice(2));
 		mkdirSync(config.outDir, { recursive: true });
 
-		// buildWebP();
-		// buildAVIF();
-		// buildJXL();
-		// buildQOI();
-		// buildMozJPEG();
+		buildWebP();
+		buildAVIF();
+		buildJXL();
+		buildQOI();
+		buildMozJPEG();
 		buildWebP2();
-		// buildHEIC();
-		// buildPNGQuant();
+		buildHEIC();
+		buildPNGQuant();
 		// buildVVIC();
 
 		repositories.writeVersionsJSON();
