@@ -187,7 +187,7 @@ function buildAVIFPartial(isEncode) {
 			AOM_LIBRARY: `vendor/aom/${typeName}-build/libaom.a`,
 			AOM_INCLUDE_DIR: "vendor/aom",
 
-			AVIF_LIBYUV: "LOCAL",
+			AVIF_LIBYUV: "OFF",
 
 			AVIF_LIBSHARPYUV: "SYSTEM",
 			LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
