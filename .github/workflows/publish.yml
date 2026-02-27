@@ -3,6 +3,10 @@ on:
     workflow_dispatch
 #   release:
 #     types: [published]
+
+env:
+  EM_VERSION: 5.0.2
+  EM_CACHE_FOLDER: 'emsdk-cache'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,7 +22,17 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           # Defaults to the user or organization that owns the workflow file
           scope: '@pbk20191'
+      - name: Setup cache
+        id: cache-system-libraries
+        uses: actions/cache@v2
+        with:
+          path: ${{env.EM_CACHE_FOLDER}}
+          key: ${{env.EM_VERSION}}-${{ runner.os }}
+
       - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{env.EM_VERSION}}
+          actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
 
       - run: npm ci
       - run: node scripts/build.js
