@@ -52,7 +52,7 @@ val encode(std::string pixels, int width, int height, HeicOptions options)
 	// Planes can have padding, so we need copy the data by row.
 	auto row_bytes = width * CHANNELS_RGBA * ((options.bitDepth + 7) / 8);
 	size_t stride;
-	uint8_t *p = image.get_plane(heif_channel_interleaved, &stride);
+	uint8_t *p = image.get_plane2(heif_channel_interleaved, &stride);
 	for (auto y = 0; y < height; y++)
 	{
 		memcpy(p + stride * y, &pixels[row_bytes * y], stride);

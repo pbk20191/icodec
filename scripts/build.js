@@ -20,11 +20,11 @@ const repositories = new RepositoryManager({
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
 	x265: [
-		"9e551a994f970a24f0e49bcebe3d43ef08448b01",
+		"1b48507eb2a63ac36e23110141c35c9e70df7454",
 		"https://bitbucket.org/multicoreware/x265_git",
 	],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
+	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
 	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
@@ -322,7 +322,7 @@ function buildHEIC() {
 			...x265Options,
 			LINKED_10BIT: 1,
 			LINKED_12BIT: 1,
-			EXTRA_LIB: "vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a;-ldl",
+			EXTRA_LIB: "\"vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a;-ldl\"",
 		},
 	});
 
@@ -438,12 +438,13 @@ try {
 		mkdirSync(config.outDir, { recursive: true });
 
 		buildWebP();
+		buildHEIC();
 		buildAVIF();
 		buildJXL();
 		buildQOI();
 		buildMozJPEG();
 		buildWebP2();
-		buildHEIC();
+		
 		buildPNGQuant();
 		// buildVVIC();
 
