@@ -9,7 +9,7 @@ on:
 #     types: [published]
 
 env:
-  EM_VERSION: 3.1.55
+  EM_VERSION: 5.0.2
   EM_CACHE_FOLDER: 'emsdk-cache'
 jobs:
   build:
