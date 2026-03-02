@@ -24,7 +24,7 @@ const repositories = new RepositoryManager({
 		"https://bitbucket.org/multicoreware/x265_git",
 	],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["284b835847db2e24deb85ab14991b35bfdee3fdc", "https://github.com/strukturag/libheif"],
+	libheif: ["v1.19.8", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
 	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
