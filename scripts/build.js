@@ -24,7 +24,7 @@ const repositories = new RepositoryManager({
 		"https://bitbucket.org/multicoreware/x265_git",
 	],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["v1.19.2", "https://github.com/strukturag/libheif"],
+	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
 	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
@@ -269,7 +269,7 @@ function buildHEICPartial(isEncode) {
 				LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
 
 				X265_INCLUDE_DIR: "vendor/x265/source",
-				X265_LIBRARY: "vendor/x265/8bit/libx265.a",
+				X265_LIBRARY: "vendor/x265/source/libx265.a",
 			} : {
 				LIBDE265_INCLUDE_DIR: "vendor/libde265",
 				LIBDE265_LIBRARY: "vendor/libde265/libde265/libde265.a",
