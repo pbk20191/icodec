@@ -322,7 +322,8 @@ function buildHEIC() {
 			...x265Options,
 			LINKED_10BIT: 1,
 			LINKED_12BIT: 1,
-			EXTRA_LIB: "\"vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a;-ldl\"",
+			EXTRA_LIB: "\"vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a\"",
+			EXTRA_LINK_FLAGS:"-L.",
 		},
 	});
 
