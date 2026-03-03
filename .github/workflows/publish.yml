@@ -1,0 +1,49 @@
+name: Publish package to GitHub Packages
+on:
+    workflow_dispatch:
+
+    push:
+      branches:
+        - master
+#   release:
+#     types: [published]
+
+env:
+  EM_VERSION: 4.0.8
+  EM_CACHE_FOLDER: 'emsdk-cache'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      # Setup .npmrc file to publish to GitHub Packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://npm.pkg.github.com'
+          # Defaults to the user or organization that owns the workflow file
+          scope: '@pbk20191'
+      - uses: jetli/wasm-pack-action@v0.4.0
+        with:
+        # Optional version of wasm-pack to install(eg. 'v0.9.1', 'latest')
+          version: 'latest'
+      - name: Setup cache
+        id: cache-system-libraries
+        uses: actions/cache@v5
+        with:
+          path: ${{env.EM_CACHE_FOLDER}}
+          key: ${{env.EM_VERSION}}-${{ runner.os }}
+
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{env.EM_VERSION}}
+          actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
+
+      - run: npm ci
+      - run: node scripts/build.js
+    #   - run: npm publish
+    #     env:
+    #       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

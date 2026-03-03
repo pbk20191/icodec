@@ -1,12 +1,12 @@
 {
-	"name": "icodec",
-	"version": "0.6.0",
+	"name": "@pbk20191/icodec",
+	"version": "0.6.1",
 	"description": "Image encoders & decoders built with WebAssembly",
 	"license": "MIT",
-	"author": "Kaciras <contact@kaciras.com>",
+	"author": "pbk20191 <contact@pbk20191.com>",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Kaciras/icodec"
+		"url": "https://github.com/pbk20191/icodec"
 	},
 	"type": "module",
 	"keywords": [
