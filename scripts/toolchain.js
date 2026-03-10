@@ -83,12 +83,14 @@ export function emcmake(settings) {
 		return;
 	}
 
-	let cxxFlags = "-pthread -msimd128";
+	let cxxFlags = "-msimd128";
 	if (config.wasm64) {
 		cxxFlags += " -sMEMORY64";
 	}
 	if (!settings.exceptions) {
 		cxxFlags += " -fno-exceptions";
+	} else {
+		// cxxFlags += " -fwasm-exceptions";
 	}
 
 	if (flags) {
@@ -102,7 +104,8 @@ export function emcmake(settings) {
 		"-Wno-dev",
 		`-DCMAKE_C_FLAGS="${cxxFlags}"`,
 		`-DCMAKE_CXX_FLAGS="${cxxFlags} -std=c++23"`,
-		"-DCMAKE_WARN_DEPRECATED=OFF",
+		// "-DCMAKE_WARN_DEPRECATED=OFF",
+		"-DCMAKE_EXE_LINKER_FLAGS=-lembind",
 	];
 	if (config.cmakeBuilder) {
 		args.push("-G", `"${config.cmakeBuilder}"`);
@@ -124,27 +127,29 @@ export function emcmake(settings) {
 export function emcc(input, sourceArguments) {
 	let output = basename(input, extname(input)).replaceAll("_", "-") + ".js";
 	output = join(config.outDir, output);
-
+	const options = [
+		"TEXTDECODER=2",
+		"ALLOW_MEMORY_GROWTH=1",
+		"EXPORT_ES6=1",
+		"NODEJS_CATCH_REJECTION=0",
+		"WASM_LEGACY_EXCEPTIONS=0",
+		/*
+		 * Default 64KB is too small, causes OOM in some cases.
+		 * libwebp sets it to 5MB, but 2MB seems enough.
+		 */
+		"STACK_SIZE=2MB",
+	]
 	const args = [
 		config.debug ? "-g" : "-O3",
 		"-o", output,
 		"-I", "cpp",
 		input,
-		"--bind",
+		"-lembind",
 		"-mnontrapping-fptoint",
 		"-msimd128",
 		"-flto",
 		"-std=c++23",
-		"-s", "NODEJS_CATCH_REJECTION=0",
-		"-s", "TEXTDECODER=2",
-		"-s", "ALLOW_MEMORY_GROWTH=1",
-		"-s", "EXPORT_ES6=1",
 
-		/*
-		 * Default 64KB is too small, causes OOM in some cases.
-		 * libwebp sets it to 5MB, but 2MB seems to be enough.
-		 */
-		"-s", "STACK_SIZE=2MB",
 
 		// Save ~69KB, but may affect performance.
 		// "-s", "MALLOC=emmalloc",
@@ -153,26 +158,29 @@ export function emcc(input, sourceArguments) {
 		// "-s", "MINIMAL_RUNTIME=1",
 	];
 	if (config.wasm64) {
-		args.push("-s", "MEMORY64=1");
+		options.push("MEMORY64=1");
+		// args.push("-s");
 	}
 	if (config.debug) {
-		args.push("-s", "NO_DISABLE_EXCEPTION_CATCHING");
-		args.push("-s", "ASSERTIONS=2");
-	} else {
-		args.push("-fno-exceptions");
-		args.push("-s", "FILESYSTEM=0");
-		args.push("-s", "ENVIRONMENT=web");
-	}
-
-	args.push(...sourceArguments);
+		// options.push("NO_DISABLE_EXCEPTION_CATCHING");
+		options.push("ASSERTIONS=2");
 
 	/*
 	 * Debug build add an assert for environment check, so we need to
 	 * add Node to the list, or remove the check code from generated JS.
 	 */
-	if (config.debug) {
-		args.push("-s", "ENVIRONMENT=node,web,worker");
+
+		options.push("ENVIRONMENT=node,web,worker");
+
+	} else {
+		args.push("-fno-exceptions");
+		options.push("FILESYSTEM=0");
+		options.push("ENVIRONMENT=web,worker,node");
+
 	}
+	args.push(...options.map((opt) => `-s${opt}`));
+	args.push(...sourceArguments);
+
 
 	execFileSync("emcc", args, { stdio: "inherit", shell: true });
 	console.info(`Successfully build WASM module: ${output}`);
@@ -180,7 +188,7 @@ export function emcc(input, sourceArguments) {
 
 export function wasmPack(directory) {
 	const flags = [
-		"-Ctarget-feature=+simd128,+atomics,+bulk-memory,+nontrapping-fptoint",
+		"-Ctarget-feature=+simd128,+bulk-memory,+nontrapping-fptoint",
 		"-Cembed-bitcode=yes",
 		"-Cllvm-args=-wasm-enable-sjlj",
 		"-Cllvm-args=-enable-emscripten-cxx-exceptions=0",

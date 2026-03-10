@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { dirname } from "node:path";
 import { argv } from "node:process";
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
-import { config, emcc, emcmake, fixPThreadImpl, wasmPack } from "./toolchain.js";
+import { copyFile, copyFileSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { config, emcc, emcmake, wasmPack } from "./toolchain.js";
 import { removeRange, RepositoryManager } from "./repository.js";
 
 // Ensure we're on the project root directory.
@@ -11,7 +11,7 @@ process.chdir(dirname(import.meta.dirname));
 const repositories = new RepositoryManager({
 	mozjpeg: ["v4.1.5", "https://github.com/mozilla/mozjpeg"],
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
-	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
+	libwebp: ["v1.5.0", "https://github.com/webmproject/libwebp"],
 	libjxl: ["v0.11.1", "https://github.com/libjxl/libjxl"],
 	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
@@ -19,9 +19,9 @@ const repositories = new RepositoryManager({
 		"dbbdedb69a281d76481ada57d6820b9d4c933749",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
-	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
+	x265: ["101367f21282754200d228f25996b47c3d8cb64c", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
+	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
 	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
@@ -179,7 +179,7 @@ function buildAVIFPartial(isEncode) {
 			AOM_LIBRARY: `vendor/aom/${typeName}-build/libaom.a`,
 			AOM_INCLUDE_DIR: "vendor/aom",
 
-			AVIF_LIBYUV: "LOCAL",
+			AVIF_LIBYUV: "OFF",
 
 			AVIF_LIBSHARPYUV: "SYSTEM",
 			LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
@@ -239,7 +239,10 @@ function buildHEICPartial(isEncode) {
 		outFile: `vendor/${typeName}/libheif/libheif.a`,
 		src: "vendor/libheif",
 		dist: "vendor/" + typeName,
-		exceptions: true,
+		exceptions: false,
+		flags: "-Dthrow=",
+		// flags: isEncode ? "-pthread" : "",
+		// flags: "-D__EMSCRIPTEN_STANDALONE_WASM__=1",
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
 			WITH_AOM_DECODER: 0,
@@ -249,13 +252,18 @@ function buildHEICPartial(isEncode) {
 			ENABLE_MULTITHREADING_SUPPORT: 0,
 			BUILD_TESTING: 0,
 			BUILD_SHARED_LIBS: 0,
+			ENABLE_PLUGIN_LOADING: 0,
+			WITH_X265: isEncode,
+			WITH_LIBDE265: !isEncode,
+			WITH_OpenH264_DECODER: 0,
+			WITH_X264: 0,
 
 			...(isEncode ? {
 				LIBSHARPYUV_INCLUDE_DIR: "vendor/libwebp",
 				LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
 
 				X265_INCLUDE_DIR: "vendor/x265/source",
-				X265_LIBRARY: "vendor/x265/8bit/libx265.a",
+				X265_LIBRARY: "vendor/x265/source/libx265.a",
 			} : {
 				LIBDE265_INCLUDE_DIR: "vendor/libde265",
 				LIBDE265_LIBRARY: "vendor/libde265/libde265/libde265.a",
@@ -271,8 +279,18 @@ function buildHEIC() {
 			"\n    elseif(X86 AND NOT X64)", "\n    endif()");
 	}
 
-	// buildWebPLibrary();
+	buildWebPLibrary();
+	const x265Flags = [
+				"pthread_create=gthread_create",
+		"pthread_join=gthread_join",
+		"pthread_cond_init=gthread_cond_init",
+		"pthread_cond_destroy=gthread_cond_destroy",
+				"pthread_cond_wait=gthread_cond_wait",
 
+		"pthread_cond_broadcast=gthread_cond_broadcast",
+		"pthread_cond_signal=gthread_cond_signal",
+		"pthread_cond_timedwait=gthread_cond_timedwait",
+	].map(flags => "-D" + flags).join(" ");
 	const x265Options = {
 		ENABLE_LIBNUMA: 0,
 		ENABLE_SHARED: 0,
@@ -284,6 +302,8 @@ function buildHEIC() {
 		outFile: "vendor/x265/12bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/12bit",
+		// flags: "-pthread",
+		flags: x265Flags,
 		options: {
 			...x265Options,
 			HIGH_BIT_DEPTH: 1,
@@ -295,6 +315,9 @@ function buildHEIC() {
 		outFile: "vendor/x265/10bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/10bit",
+		// flags: "-pthread",
+				flags: x265Flags,
+
 		options: {
 			...x265Options,
 			HIGH_BIT_DEPTH: 1,
@@ -302,13 +325,18 @@ function buildHEIC() {
 		},
 	});
 	emcmake({
-		outFile: "vendor/x265/source/libx265.a",
+		outFile: "vendor/x265/8bit/libx265.a",
 		src: "vendor/x265/source",
+		dist: "vendor/x265/8bit",
+		// flags: "-pthread",
+				flags: x265Flags,
+
 		options: {
 			...x265Options,
 			LINKED_10BIT: 1,
 			LINKED_12BIT: 1,
-			EXTRA_LIB: "vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a;-ldl",
+			EXTRA_LIB: "\"vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a\"",
+			EXTRA_LINK_FLAGS:"\"-L. -lembind\"",
 		},
 	});
 
@@ -321,35 +349,81 @@ function buildHEIC() {
 			ENABLE_DECODER: 0,
 		},
 	});
-
-	// TODO: single thread
+	const mri = `
+	CREATE vendor/x265/source/libx265.a
+	ADDLIB vendor/x265/8bit/libx265.a
+	ADDLIB vendor/x265/10bit/libx265.a
+	ADDLIB vendor/x265/12bit/libx265.a
+	SAVE
+	END
+	`;	
+	execFileSync("emar", ["-M"], { 
+			input: mri, 
+			stdio: ["pipe", "inherit", "inherit"],
+		}
+	);
+	copyFileSync("vendor/x265/8bit/x265_config.h", "vendor/x265/source/x265_config.h")
 	buildHEICPartial(true);
-	buildHEICPartial(false);
-
+// CROSS_ORIGIN
+	// config.debug = true
 	emcc("cpp/heic_enc.cpp", [
-		"-s", "ENVIRONMENT=web,worker",
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
-		"-pthread",
-		"-s", "PTHREAD_POOL_SIZE=2",
-		"-fexceptions",
+		//  "-sASSERTIONS=2",
+		//  "-sDYNAMIC_EXECUTION=0",
+		//  "-sEMBIND_AOT=1",
+		 "-sRETAIN_COMPILER_SETTINGS=1",
+		//  "-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"doRewind\"]",
+		//  "-sWASM_BIGINT=1",
+		//  "-sUSE_CLOSURE_COMPILER=1",
+		//  "-sDYNAMIC_EXECUTION=0",
+		//  "-sDYNCALLS=1",
+		//  "-sEMBIND_AOT=1",
+		// "--emit-tsd interface.d.ts",
+		// "-pthread",
+		// "-s", "PTHREAD_POOL_SIZE=2",
+		// "-fexceptions",
+		// "-gsource-map",
+		// "-g2",
+		// "-g1",
+		// "-sASYNCIFY_REMOVE=\"encode_foo_encode_bar(*)\"",
+		//   "-gline-tables-only",
+		// "-sJSPI_EXPORTS=encode",
+		// "-fwasm-exceptions",
+		// "-fwasm-exceptions",
+		// "-sJSPI",
+		// "-sASYNCIFY_STACK_SIZE=2048",
+		// "-sJSPI_EXPORTS=__wasm_call_ctors",
+		// "-sASYNCIFY_ADVISE=1",
+		"-sASYNCIFY_ADD=\"heif_context_encode_image,green_thread_entry(*),gthread_cond_wait,gthread_join,gthread_cond_timedwait,*ThreadShim(*)\"",
+		// "-sASYNCIFY_ONLY=gthread_cond_wait,gthread_join,gthread_cond_timedwait",
+		// "-sASYNCIFY_DEBUG=1",
+		// "-sASYNCIFY_IGNORE_INDIRECT=1",
+		"-fno-exceptions",
+		"-sASYNCIFY=1",
+
+// "-sSTACK_SIZE=10MB",
+		// "-Wl,--allow-multiple-definition", // our pthread impls override library_pthread_stub.o
 		"vendor/libwebp/libsharpyuv.a",
 		"vendor/x265/source/libx265.a",
-		"vendor/x265/10bit/libx265.a",
-		"vendor/x265/12bit/libx265.a",
 		"vendor/heic_enc/libheif/libheif.a",
 	]);
+	// config.debug = false
+	buildHEICPartial(false);
+
 
 	emcc("cpp/heic_dec.cpp", [
-		"-s", "ENVIRONMENT=web",
+		// "-s", "ENVIRONMENT=web",
 		"-I vendor/heic_dec",
 		"-I vendor/libheif/libheif/api",
-		"-fexceptions",
+		// "-fexceptions",
+		"-fno-exceptions",
+		// "-fwasm-exceptions",
 		"vendor/libde265/libde265/libde265.a",
 		"vendor/heic_dec/libheif/libheif.a",
 	]);
 
-	fixPThreadImpl("dist/heic-enc.js", 1);
+	// fixPThreadImpl("dist/heic-enc.js", 1);
 }
 
 function buildVVIC() {
@@ -407,7 +481,6 @@ function buildVVIC() {
 	});
 
 	emcc("cpp/vvic.cpp", [
-		"-s", "ENVIRONMENT=web,worker",
 		"-I vendor/libheif",
 		"-I vendor/libheif/libheif/api",
 		"-pthread",

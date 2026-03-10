@@ -71,6 +71,8 @@ export interface Options {
 	 * @default false
 	 */
 	sharpYUV?: boolean;
+
+	bitDepth: 8 | 10 | 12;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -82,6 +84,7 @@ export const defaultOptions: Required<Options> = {
 	complexity: 50,
 	chroma: "420",
 	sharpYUV: false,
+	bitDepth: 8,
 };
 
 export const mimeType = "image/heic";
@@ -100,7 +103,21 @@ export async function loadDecoder(input?: WasmSource) {
 }
 
 export function encode(image: ImageDataLike, options?: Options) {
-	return encodeES("HEIC Encode", encoderWASM, defaultOptions, image, options);
+	const new_encode = (...args: any[]) => {
+		const holder = {} as {
+			error?:any,
+			success?:any,
+		}
+		encoderWASM.encode(...args,holder);
+		if (holder.error) {
+			return holder.error;
+		}
+		if (holder.success){
+			return holder.success
+		}
+	}
+	
+	return encodeES("HEIC Encode", { encode:new_encode }, defaultOptions, image, options);
 }
 
 export function decode(input: BufferSource) {

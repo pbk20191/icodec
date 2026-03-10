@@ -72,12 +72,18 @@ export function encodeES<T>(name: string, wasm: any, defaults: T, image: ImageDa
 	const { data, width, height } = image;
 	(options as ExtraDataES).bitDepth = image.depth ?? 8;
 	const result = wasm.encode(data, width, height, options);
+	if (result instanceof Error) {
+		throw result;
+	}
 	return check<Uint8Array>(result, name);
 }
 
 export function check<T>(value: string | null | T, hint: string) {
 	if (typeof value === "string") {
 		throw new Error(`${hint}: ${value}`);
+	}
+	if (value instanceof Error) {
+		throw value;
 	}
 	if (value) return value as T; else throw new Error(hint + " failed");
 }
