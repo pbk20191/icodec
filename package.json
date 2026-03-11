@@ -1,6 +1,7 @@
 {
 	"name": "@pbk20191/icodec",
-	"version": "0.6.1",
+	"version": "0.6.2",
+	"private": false,
 	"description": "Image encoders & decoders built with WebAssembly",
 	"license": "MIT",
 	"author": "pbk20191 <contact@pbk20191.com>",
@@ -56,6 +57,7 @@
 		"sharp": "^0.34.5",
 		"smol-toml": "^1.5.2",
 		"typescript": "^5.9.3",
-		"version-compare": "^3.12.0"
+		"version-compare": "^3.12.0",
+		"tsx": "^4.21.0"
 	}
 }
