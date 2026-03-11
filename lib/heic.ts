@@ -71,8 +71,6 @@ export interface Options {
 	 * @default false
 	 */
 	sharpYUV?: boolean;
-
-	bitDepth: 8 | 10 | 12;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -84,7 +82,6 @@ export const defaultOptions: Required<Options> = {
 	complexity: 50,
 	chroma: "420",
 	sharpYUV: false,
-	bitDepth: 8,
 };
 
 export const mimeType = "image/heic";
