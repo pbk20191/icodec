@@ -2,16 +2,25 @@ import wasmFactoryEnc from "../dist/webp-enc.js";
 import wasmFactoryDec from "../dist/webp-dec.js";
 import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
 
-export enum Preprocess {
+export const enum Preprocess {
 	None,
 	SegmentSmooth,
 	Dithering,
 }
 
-export enum AlphaFiltering {
+export const enum AlphaFiltering {
 	None = 0,
 	Fast,
 	Best,
+}
+
+export const enum WebPPreset {
+	Default = 0,
+	Picture,
+	Photo,
+	Drawing,
+	Icon,
+	Text,
 }
 
 export interface Options {
@@ -285,6 +294,10 @@ export async function loadDecoder(input?: WasmSource) {
 
 export function encode(image: ImageDataLike, options?: Options) {
 	return encodeES("Webp Encode", encoderWASM, defaultOptions, image, options);
+}
+
+export function preset(config:Options, preset: WebPPreset): Options|null {
+	return encoderWASM.WebPConfigPreset( config,preset);
 }
 
 export function decode(input: BufferSource) {

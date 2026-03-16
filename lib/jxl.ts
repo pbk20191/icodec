@@ -3,9 +3,9 @@ import wasmFactoryDec from "../dist/jxl-dec.js";
 import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 // Tristate bool value, `Default` means encoder chooses.
-export enum Override { Default = -1, False, True}
+export const enum Override { Default = -1, False, True}
 
-export enum Predictor {
+export const enum Predictor {
 	Default = -1,
 	Zero,
 	Left,

@@ -1,6 +1,15 @@
 #include <emscripten/bind.h>
 #include "src/webp/encode.h"
 #include "icodec.h"
+#include <optional>
+static std::optional<WebPConfig> _webpConfigPreset(const WebPConfig& config, WebPPreset preset) {
+	WebPConfig c = config;
+	if (!WebPConfigPreset(&c, preset, config.quality)) {
+		return std::nullopt;
+	}
+	return std::make_optional(c);
+    // return WebPConfigPreset(&config, preset, config.quality);
+}
 
 val encode(std::string pixels, int width, int height, WebPConfig config)
 {
@@ -37,6 +46,7 @@ val encode(std::string pixels, int width, int height, WebPConfig config)
 EMSCRIPTEN_BINDINGS(icodec_module_WebP)
 {
 	function("encode", &encode);
+	function("WebPConfigPreset", &_webpConfigPreset);
 
 	// Since `value_object` uses this enum, it must be register.
 	enum_<WebPImageHint>("WebPImageHint")
@@ -72,4 +82,12 @@ EMSCRIPTEN_BINDINGS(icodec_module_WebP)
 		.field("exact", &WebPConfig::exact)
 		.field("useDeltaPalette", &WebPConfig::use_delta_palette)
 		.field("sharpYUV", &WebPConfig::use_sharp_yuv);
+	register_optional<WebPConfig>();
+	enum_<WebPPreset>("WebPPreset", emscripten::enum_value_type::number)
+		.value("WEBP_PRESET_DEFAULT", WebPPreset::WEBP_PRESET_DEFAULT)
+		.value("WEBP_PRESET_PICTURE", WebPPreset::WEBP_PRESET_PICTURE)
+		.value("WEBP_PRESET_PHOTO", WebPPreset::WEBP_PRESET_PHOTO)
+		.value("WEBP_PRESET_DRAWING", WebPPreset::WEBP_PRESET_DRAWING)
+		.value("WEBP_PRESET_ICON", WebPPreset::WEBP_PRESET_ICON)
+		.value("WEBP_PRESET_TEXT", WebPPreset::WEBP_PRESET_TEXT);
 }

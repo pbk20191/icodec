@@ -1,14 +1,14 @@
 import wasmFactoryEnc from "../dist/mozjpeg.js";
 import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
 
-export enum ColorSpace {
+export const enum ColorSpace {
 	GRAYSCALE = 1,
 	RGB,
 	YCbCr,
 }
 
 // https://github.com/mozilla/mozjpeg/blob/6c9f0897afa1c2738d7222a0a9ab49e8b536a267/jcparam.c#L74
-export enum Quantization {
+export const enum Quantization {
 	JPEG_Annex_K,
 	Flat,
 	MSSIM_Tuned_Kodak,

@@ -2,14 +2,14 @@ import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js"
 import wasmFactoryEnc from "../dist/wp2-enc.js";
 import wasmFactoryDec from "../dist/wp2-dec.js";
 
-export enum UVMode {
-	UVAdapt,
+export const enum UVMode {
+	UVAdapt = 0,
 	UV420,
 	UV444,
 	UVAuto,
 }
 
-export enum Csp {
+export const enum Csp {
 	YCoCg,
 	YCbCr,
 	Custom,
