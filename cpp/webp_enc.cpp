@@ -49,7 +49,7 @@ EMSCRIPTEN_BINDINGS(icodec_module_WebP)
 	function("WebPConfigPreset", &_webpConfigPreset);
 
 	// Since `value_object` uses this enum, it must be register.
-	enum_<WebPImageHint>("WebPImageHint")
+	enum_<WebPImageHint>("WebPImageHint", emscripten::enum_value_type::number)
 		.value("WEBP_HINT_DEFAULT", WebPImageHint::WEBP_HINT_DEFAULT)
 		.value("WEBP_HINT_PICTURE", WebPImageHint::WEBP_HINT_PICTURE)
 		.value("WEBP_HINT_PHOTO", WebPImageHint::WEBP_HINT_PHOTO)
