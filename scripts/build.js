@@ -97,11 +97,13 @@ export function buildWebP() {
 		"-I vendor/libwebp",
 		"vendor/libwebp/libwebp.a",
 		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd webp-enc.d.ts",
 	]);
 	emcc("cpp/webp_dec.cpp", [
 		"-I vendor/libwebp",
 		"vendor/libwebp/libwebp.a",
 		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd webp-dec.d.ts",
 	]);
 }
 
@@ -135,7 +137,10 @@ export function buildJXL() {
 		"vendor/libjxl/third_party/brotli/libbrotlicommon.a",
 		"vendor/libjxl/third_party/highway/libhwy.a",
 	];
+	includes.push("--emit-tsd jxl-enc.d.ts");
 	emcc("cpp/jxl_enc.cpp", includes);
+	includes.pop();
+	includes.push("--emit-tsd jxl-dec.d.ts");
 	emcc("cpp/jxl_dec.cpp", includes);
 }
 
@@ -194,6 +199,7 @@ function buildAVIFPartial(isEncode) {
 		"vendor/libwebp/libsharpyuv.a",
 		`vendor/aom/${typeName}-build/libaom.a`,
 		`vendor/libavif/${typeName}-build/libavif.a`,
+		`--emit-tsd avif-${typeName}.d.ts`,
 	]);
 }
 
@@ -226,10 +232,12 @@ export function buildWebP2() {
 	emcc("cpp/wp2_enc.cpp", [
 		"-I vendor/libwebp2",
 		"vendor/wp2_build/libwebp2.a",
+		"--emit-tsd wp2-enc.d.ts",
 	]);
 	emcc("cpp/wp2_dec.cpp", [
 		"-I vendor/libwebp2",
 		"vendor/wp2_build/libwebp2.a",
+		`--emit-tsd wp2-dec.d.ts`,
 	]);
 }
 
@@ -240,7 +248,7 @@ function buildHEICPartial(isEncode) {
 		src: "vendor/libheif",
 		dist: "vendor/" + typeName,
 		exceptions: false,
-		flags: "-Dthrow=",
+		flags: "-Dthrow= -DLIBHEIF_BOX_EMSCRIPTEN_H=",
 		// flags: isEncode ? "-pthread" : "",
 		// flags: "-D__EMSCRIPTEN_STANDALONE_WASM__=1",
 		options: {
@@ -407,6 +415,7 @@ function buildHEIC() {
 		"vendor/libwebp/libsharpyuv.a",
 		"vendor/x265/source/libx265.a",
 		"vendor/heic_enc/libheif/libheif.a",
+		"--emit-tsd heic-enc.d.ts",
 	]);
 	// config.debug = false
 	buildHEICPartial(false);
@@ -421,6 +430,7 @@ function buildHEIC() {
 		// "-fwasm-exceptions",
 		"vendor/libde265/libde265/libde265.a",
 		"vendor/heic_dec/libheif/libheif.a",
+		"--emit-tsd heic-dec.d.ts",
 	]);
 
 	// fixPThreadImpl("dist/heic-enc.js", 1);
@@ -502,6 +512,7 @@ function buildVVIC() {
 		"vendor/vvenc/lib/release-static/libvvenc.a",
 		"vendor/vvdec/lib/release-static/libvvdec.a",
 		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd vvic.d.ts",
 	]);
 }
 
