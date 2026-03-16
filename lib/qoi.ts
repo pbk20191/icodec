@@ -29,3 +29,7 @@ export function encode(image: ImageDataLike) {
 export function decode(input: BufferSource) {
 	return check<ImageData>(codecWASM.decode(input), "QOI Decode");
 }
+
+export function unloadCoder() {
+	codecWASM = undefined;
+}

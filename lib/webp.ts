@@ -303,3 +303,11 @@ export function preset(config:Options, preset: EnumValue<typeof WebPPreset>): Op
 export function decode(input: BufferSource) {
 	return check<ImageData>(decoderWASM.decode(input), "Webp Decode");
 }
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
+}

@@ -235,3 +235,11 @@ export function encode(image: ImageDataLike, options?: Options) {
 export function decode(input: BufferSource) {
 	return check<ImageData>(decoderWASM.decode(input), "JXL Decode");
 }
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
+}
