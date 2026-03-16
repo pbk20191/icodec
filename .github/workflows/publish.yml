@@ -6,30 +6,37 @@ on:
       - 'v*'
 
 permissions:
-  id-token: write  # Required for OIDC
   contents: read
 env:
   EM_VERSION: 5.0.2
   EM_CACHE_FOLDER: 'emsdk-cache'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      # packages: write
+      id-token: write  # Required for OIDC
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           # registry-url: 'https://npm.pkg.github.com'
           # Defaults to the user or organization that owns the workflow file
           # scope: '@pbk20191'
+
+      # - run: |
+      #     npm whoami
+      #     npm view @pbk20191/icodec version
+      #     npm owner ls @pbk20191/icodec
+      #     npm access ls-packages $(npm whoami)
       - uses: jetli/wasm-pack-action@v0.4.0
         with:
         # Optional version of wasm-pack to install(eg. 'v0.9.1', 'latest')
-          version: 'latest'
+          version: 'v0.14.0'
       - name: Setup cache
         id: cache-system-libraries
         uses: actions/cache@v5
@@ -45,3 +52,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm publish
+        # env:
+          # NPM_CONFIG_PROVENANCE: true
