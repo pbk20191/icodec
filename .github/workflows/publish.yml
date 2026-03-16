@@ -1,13 +1,13 @@
-name: Publish package to GitHub Packages
+name: Publish package to npm Packages
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
-    push:
-      branches:
-        - master
-#   release:
-#     types: [published]
-
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
 env:
   EM_VERSION: 5.0.2
   EM_CACHE_FOLDER: 'emsdk-cache'
@@ -19,13 +19,13 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v5
-      # Setup .npmrc file to publish to GitHub Packages
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
+          # registry-url: 'https://npm.pkg.github.com'
           # Defaults to the user or organization that owns the workflow file
-          scope: '@pbk20191'
+          # scope: '@pbk20191'
       - uses: jetli/wasm-pack-action@v0.4.0
         with:
         # Optional version of wasm-pack to install(eg. 'v0.9.1', 'latest')
@@ -43,7 +43,5 @@ jobs:
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
 
       - run: npm ci
-      - run: node scripts/build.js
-    #   - run: npm publish
-    #     env:
-    #       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm run build
+      - run: npm publish

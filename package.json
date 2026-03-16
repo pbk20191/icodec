@@ -7,7 +7,7 @@
 	"author": "pbk20191 <contact@pbk20191.com>",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/pbk20191/icodec"
+		"url": "git+https://github.com/pbk20191/icodec.git"
 	},
 	"type": "module",
 	"scripts": {
