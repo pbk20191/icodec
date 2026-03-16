@@ -1,5 +1,5 @@
 import wasmFactoryEnc from "../dist/mozjpeg.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 export const enum ColorSpace {
 	GRAYSCALE = 1,
@@ -66,14 +66,14 @@ export interface Options {
 	/**
 	 * @default ColorSpace.YCbCr
 	 */
-	colorSpace?: ColorSpace;
+	colorSpace?: EnumValue<typeof ColorSpace>;
 
 	/**
 	 * Select the predefined quantization table to use.
 	 *
 	 * @default Quantization.ImageMagick
 	 */
-	quantTable?: Quantization;
+	quantTable?: EnumValue<typeof Quantization>;
 
 	/**
 	 * use scans in trellis optimization.

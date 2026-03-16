@@ -1,11 +1,11 @@
 import wasmFactoryEnc from "../dist/jxl-enc.js";
 import wasmFactoryDec from "../dist/jxl-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 // Tristate bool value, `Default` means encoder chooses.
-export const enum Override { Default = -1, False, True}
+export enum Override { Default = -1, False, True}
 
-export const enum Predictor {
+export enum Predictor {
 	Default = -1,
 	Zero,
 	Left,
@@ -188,7 +188,7 @@ export interface Options {
 	 *
 	 * @default Predictor.Default,
 	 */
-	modularPredictor?: Predictor;
+	modularPredictor?: EnumValue<typeof Predictor>;
 }
 
 export const defaultOptions: Required<Options> = {

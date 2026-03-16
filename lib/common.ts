@@ -5,6 +5,7 @@
  * - If is BufferSource, it will be treated as the WASM bytes.
  */
 export type WasmSource = string | BufferSource;
+export type EnumValue<E> = E[Extract<keyof E, string>];
 
 export function loadES(factory: any, source?: WasmSource) {
 	return typeof source === "string"

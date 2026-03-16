@@ -1,6 +1,6 @@
 import wasmFactoryEnc from "../dist/avif-enc.js";
 import wasmFactoryDec from "../dist/avif-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 export enum Subsampling {
 	YUV444 = 1,
@@ -43,7 +43,7 @@ export interface Options {
 	 *
 	 * @default YUV420
 	 */
-	subsample?: Subsampling;
+	subsample?: EnumValue<typeof Subsampling>;
 
 	/**
 	 * If true, ignores `tileRowsLog2` and `tileColsLog2` and automatically chooses suitable tiling values.
@@ -86,7 +86,7 @@ export interface Options {
 	 *
 	 * @default AVIFTune.Auto
 	 */
-	tune?: AVIFTune;
+	tune?: EnumValue<typeof AVIFTune>;
 
 	/**
 	 * Use libsharpyuv for RGB->YUV conversion if needed.

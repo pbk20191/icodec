@@ -1,15 +1,15 @@
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 import wasmFactoryEnc from "../dist/wp2-enc.js";
 import wasmFactoryDec from "../dist/wp2-dec.js";
 
-export const enum UVMode {
+export enum UVMode {
 	UVAdapt = 0,
 	UV420,
 	UV444,
 	UVAuto,
 }
 
-export const enum Csp {
+export enum Csp {
 	YCoCg,
 	YCbCr,
 	Custom,
@@ -61,8 +61,8 @@ export interface Options {
 	 */
 	sns?: number;
 
-	uvMode?: UVMode;
-	cspType?: Csp;
+	uvMode?: EnumValue<typeof UVMode>;
+	cspType?: EnumValue<typeof Csp>;
 
 	/**
 	 * error diffusion strength [0=off, 100=max]

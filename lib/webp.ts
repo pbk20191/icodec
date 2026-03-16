@@ -1,20 +1,20 @@
 import wasmFactoryEnc from "../dist/webp-enc.js";
 import wasmFactoryDec from "../dist/webp-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
-export const enum Preprocess {
+export enum Preprocess {
 	None,
 	SegmentSmooth,
 	Dithering,
 }
 
-export const enum AlphaFiltering {
+export enum AlphaFiltering {
 	None = 0,
 	Fast,
 	Best,
 }
 
-export const enum WebPPreset {
+export enum WebPPreset {
 	Default = 0,
 	Picture,
 	Photo,
@@ -126,7 +126,7 @@ export interface Options {
 	 *
 	 * @default Preprocess.None
 	 */
-	preprocessing?: Preprocess;
+	preprocessing?: EnumValue<typeof Preprocess>;
 
 	/**
 	 * Turns auto-filter on. This algorithm will spend additional time optimizing the
@@ -181,7 +181,7 @@ export interface Options {
 	 *
 	 * @default AlphaFiltering.Fast
 	 */
-	alphaFiltering?: AlphaFiltering;
+	alphaFiltering?: EnumValue<typeof AlphaFiltering>;
 
 	/**
 	 * Use more accurate and sharper RGB->YUV conversion if needed.
@@ -296,7 +296,7 @@ export function encode(image: ImageDataLike, options?: Options) {
 	return encodeES("Webp Encode", encoderWASM, defaultOptions, image, options);
 }
 
-export function preset(config:Options, preset: WebPPreset): Options|null {
+export function preset(config:Options, preset: EnumValue<typeof WebPPreset>): Options|null {
 	return encoderWASM.WebPConfigPreset( config,preset);
 }
 

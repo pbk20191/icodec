@@ -2,7 +2,7 @@
 .esbench-tmp
 node_modules
 /vendor
-
+/emsdk
 # Log files
 *.log
 logs

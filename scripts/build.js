@@ -427,12 +427,21 @@ function buildHEIC() {
 }
 
 function buildVVIC() {
+	// buildWebPLibrary();
+
 	// If build failed, try to delete "use ccache" section in CMakeLists.txt
 	removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
+	removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
+
 	emcmake({
 		outFile: "vendor/vvdec/lib/release-static/libvvdec.a",
 		src: "vendor/vvdec",
 		exceptions: true,
+		flags: "-Wno-nontrivial-memcall -Wno-deprecated-this-capture",
+		options: {
+			VVDEC_ENABLE_X86_SIMD:1,
+			VVDEC_ENABLE_LINK_TIME_OPT: config.debug ? 0 : 1,
+		}
 	});
 
 	removeRange("vendor/vvenc/CMakeLists.txt", "\n# use ccache", "\n\n");
@@ -442,10 +451,11 @@ function buildVVIC() {
 		exceptions: true,
 		options: {
 			// Some instructions are not supported in WASM.
-			VVENC_ENABLE_X86_SIMD: 0,
+			VVENC_ENABLE_X86_SIMD: 1,
 			BUILD_SHARED_LIBS: 0,
 			VVENC_ENABLE_INSTALL: 0,
 			VVENC_ENABLE_THIRDPARTY_JSON: 0,
+			VVENC_ENABLE_ARM_SIMD: 1,
 		},
 	});
 
@@ -453,6 +463,7 @@ function buildVVIC() {
 		outFile: "vendor/libheif_vvic/libheif/libheif.a",
 		src: "vendor/libheif",
 		dist: "vendor/libheif_vvic",
+		exceptions: true,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
 			WITH_AOM_DECODER: 0,
@@ -481,12 +492,16 @@ function buildVVIC() {
 	});
 
 	emcc("cpp/vvic.cpp", [
-		"-I vendor/libheif",
+		"-I vendor/libheif_vvic",
 		"-I vendor/libheif/libheif/api",
-		"-pthread",
+		// "-pthread",
+		"-fexceptions",
+		"-fwasm-exceptions",
+		// "-sWASM_EXCEPTIONS=1",
 		"vendor/libheif_vvic/libheif/libheif.a",
 		"vendor/vvenc/lib/release-static/libvvenc.a",
 		"vendor/vvdec/lib/release-static/libvvdec.a",
+		"vendor/libwebp/libsharpyuv.a",
 	]);
 }
 
