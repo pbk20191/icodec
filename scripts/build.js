@@ -22,8 +22,8 @@ const repositories = new RepositoryManager({
 	x265: ["e660273b068f56f538da54a89e3711fb975d7d45", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
-	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
-	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
+	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
+	vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
 
 // It also builds libsharpyuv.a which used in other encoders.
@@ -437,19 +437,33 @@ function buildHEIC() {
 }
 
 function buildVVIC() {
-	// buildWebPLibrary();
-
+	buildWebPLibrary();
+	execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/vvdec.patch && git apply ../../patches/vvdec.patch \
+		|| git apply --check --reverse ../../patches/vvdec.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/vvdec",
+		stdio: "inherit",
+	}
+	);	
 	// If build failed, try to delete "use ccache" section in CMakeLists.txt
-	removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
-	removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
-
+	// removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
+	// removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
+	// removeRange("vendor/vvdec/")
 	emcmake({
 		outFile: "vendor/vvdec/lib/release-static/libvvdec.a",
 		src: "vendor/vvdec",
 		exceptions: true,
-		flags: "-Wno-nontrivial-memcall -Wno-deprecated-this-capture",
+		flags: "-msse4.2",
 		options: {
 			VVDEC_ENABLE_X86_SIMD:1,
+			VVDEC_ENABLE_ARM_SIMD: 1,
+			VVDEC_LIBRARY_ONLY: 1,
+			BUILD_SHARED_LIBS: 0,
 			VVDEC_ENABLE_LINK_TIME_OPT: config.debug ? 0 : 1,
 		}
 	});
@@ -459,6 +473,7 @@ function buildVVIC() {
 		outFile: "vendor/vvenc/lib/release-static/libvvenc.a",
 		src: "vendor/vvenc",
 		exceptions: true,
+		flags: "-msse4.2",
 		options: {
 			// Some instructions are not supported in WASM.
 			VVENC_ENABLE_X86_SIMD: 1,
@@ -468,11 +483,23 @@ function buildVVIC() {
 			VVENC_ENABLE_ARM_SIMD: 1,
 		},
 	});
-
+	execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/heif_vvc_single_thread.patch && git apply ../../patches/heif_vvc_single_thread.patch \
+		|| git apply --check --reverse ../../patches/heif_vvc_single_thread.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/libheif",
+		stdio: "inherit",
+	}
+	);	
 	emcmake({
 		outFile: "vendor/libheif_vvic/libheif/libheif.a",
 		src: "vendor/libheif",
 		dist: "vendor/libheif_vvic",
+		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H=",
 		exceptions: true,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
@@ -493,11 +520,8 @@ function buildVVIC() {
 			WITH_VVENC: 1,
 			WITH_VVDEC: 1,
 
-			vvenc_INCLUDE_DIR: "vendor/vvenc/include",
-			vvenc_LIBRARY: "vendor/vvenc/lib/release-static/libvvenc.a",
-
-			vvdec_INCLUDE_DIR: "vendor/vvdec/include",
-			vvdec_LIBRARY: "vendor/vvdec/lib/release-static/libvvdec.a",
+			vvenc_DIR: "vendor/vvenc/cmake/install",
+			vvdec_DIR: "vendor/vvdec/cmake/install",
 		},
 	});
 
@@ -534,6 +558,5 @@ if (process.argv[2] === "update") {
 	buildHEIC();
 	buildPNGQuant();
 	// buildVVIC();
-
 	repositories.writeVersionsJSON();
 }
