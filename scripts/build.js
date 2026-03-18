@@ -19,7 +19,7 @@ const repositories = new RepositoryManager({
 		"b88188eef99dc42a9cab587b0d66819b37ee1c2c",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
-	x265: ["e660273b068f56f538da54a89e3711fb975d7d45", "https://bitbucket.org/multicoreware/x265_git"],
+	x265: ["5b3e613d7d46a51bbd6b8a071bfc725a54e5e62d", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
