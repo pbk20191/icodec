@@ -11,7 +11,7 @@ process.chdir(dirname(import.meta.dirname));
 const repositories = new RepositoryManager({
 	mozjpeg: ["v4.1.5", "https://github.com/mozilla/mozjpeg"],
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
-	libwebp: ["v1.5.0", "https://github.com/webmproject/libwebp"],
+	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
 	libjxl: ["v0.11.2", "https://github.com/libjxl/libjxl"],
 	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
@@ -31,7 +31,7 @@ function buildWebPLibrary() {
 	emcmake({
 		outFile: "vendor/libwebp/libwebp.a",
 		src: "vendor/libwebp",
-		flags: "-msse2 -msse4.1 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP",
+		flags: "-msse3 -mavx2 -msse4.2 -msimd128 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP -DWEBP_USE_SSE2",
 		cflags: "-std=c89",
 		options: {
 			WEBP_ENABLE_SIMD: 1,
