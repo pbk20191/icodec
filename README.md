@@ -86,7 +86,7 @@ Image encoders & decoders built with WebAssembly, support high-depth.
 </table>
 
 > [!WARNING]
-> Since libheif does not support specify thread count for x265 encoder, The `encode` of the `heic` module only work in webworker.
+> The `encode` of the `heic` module is guaranteed to work in single-thread mode by using Emscripten fiber, even though libheif does not support specifying thread count for the x265 encoder.
 > 
 > `wp2` is experimental, file encoded in old version may be invalid for newer decoder.
 > 
@@ -326,5 +326,4 @@ node scripts/start-demo.js
 
 TODOs:
 
-* Could it be possible to remove HEIC & VVIC encoder dependency on pthread, or limit the number of threads?
 * Cannot specify vvenc & vvdec paths for libheif build.
