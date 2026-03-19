@@ -13,14 +13,14 @@ const repositories = new RepositoryManager({
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
 	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
 	libjxl: ["v0.11.2", "https://github.com/libjxl/libjxl"],
-	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
+	libavif: ["v1.4.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
 	libwebp2: [
-		"b88188eef99dc42a9cab587b0d66819b37ee1c2c",
+		"8720150cdc4c5c51a11a809a93110f38035b6048",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
 	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
-	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
+	libde265: ["v1.0.17", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
 	vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
@@ -217,12 +217,14 @@ export function buildWebP2() {
 		outFile: "vendor/wp2_build/libwebp2.a",
 		src: "vendor/libwebp2",
 		dist: "vendor/wp2_build",
+		flags: "-msse4.2 -msimd128",
 		options: {
 			WP2_BUILD_EXAMPLES: 0,
 			WP2_BUILD_TESTS: 0,
 			WP2_ENABLE_TESTS: 0,
 			WP2_BUILD_EXTRAS: 0,
 			WP2_ENABLE_SIMD: 1,
+			WP2_ENABLE_SIMD_DEFAULT: 1,
 			CMAKE_DISABLE_FIND_PACKAGE_Threads: 1,
 
 			// Fails in vdebug.cc
