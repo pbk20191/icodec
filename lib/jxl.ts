@@ -1,6 +1,6 @@
 import wasmFactoryEnc from "../dist/jxl-enc.js";
 import wasmFactoryDec from "../dist/jxl-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 // Tristate bool value, `Default` means encoder chooses.
 export enum Override { Default = -1, False, True}
@@ -188,7 +188,7 @@ export interface Options {
 	 *
 	 * @default Predictor.Default,
 	 */
-	modularPredictor?: Predictor;
+	modularPredictor?: EnumValue<typeof Predictor>;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -234,4 +234,12 @@ export function encode(image: ImageDataLike, options?: Options) {
 
 export function decode(input: BufferSource) {
 	return check<ImageData>(decoderWASM.decode(input), "JXL Decode");
+}
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
 }

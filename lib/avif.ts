@@ -1,6 +1,6 @@
-import wasmFactoryEnc from "../dist/avif-enc.js";
-import wasmFactoryDec from "../dist/avif-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import wasmFactoryEnc, { MainModule as EncoderModule } from "../dist/avif-enc.js";
+import wasmFactoryDec, { MainModule as DecoderModule, EmbindString } from "../dist/avif-dec.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 
 export enum Subsampling {
 	YUV444 = 1,
@@ -43,7 +43,7 @@ export interface Options {
 	 *
 	 * @default YUV420
 	 */
-	subsample?: Subsampling;
+	subsample?: EnumValue<typeof Subsampling>;
 
 	/**
 	 * If true, ignores `tileRowsLog2` and `tileColsLog2` and automatically chooses suitable tiling values.
@@ -86,7 +86,7 @@ export interface Options {
 	 *
 	 * @default AVIFTune.Auto
 	 */
-	tune?: AVIFTune;
+	tune?: EnumValue<typeof AVIFTune>;
 
 	/**
 	 * Use libsharpyuv for RGB->YUV conversion if needed.
@@ -115,8 +115,8 @@ export const mimeType = "image/avif";
 export const extension = "avif";
 export const bitDepth = [8, 10, 12, 16];
 
-let encoderWASM: any;
-let decoderWASM: any;
+let encoderWASM: EncoderModule|undefined;
+let decoderWASM: DecoderModule|undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
@@ -131,5 +131,14 @@ export function encode(image: ImageDataLike, options?: Options) {
 }
 
 export function decode(input: BufferSource) {
-	return check<ImageData>(decoderWASM.decode(input), "AVIF Decode");
+	return check<ImageData>(decoderWASM!.decode(input as EmbindString), "AVIF Decode");
+}
+
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
 }

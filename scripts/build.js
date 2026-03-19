@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { dirname } from "node:path";
 import { argv } from "node:process";
-import { mkdirSync, renameSync, writeFileSync } from "node:fs";
-import { config, emcc, emcmake, fixPThreadImpl, wasmPack } from "./toolchain.js";
+import { copyFile, copyFileSync, mkdirSync, renameSync, writeFileSync } from "node:fs";
+import { config, emcc, emcmake, wasmPack } from "./toolchain.js";
 import { removeRange, RepositoryManager } from "./repository.js";
 
 // Ensure we're on the project root directory.
@@ -12,18 +12,18 @@ const repositories = new RepositoryManager({
 	mozjpeg: ["v4.1.5", "https://github.com/mozilla/mozjpeg"],
 	qoi: ["master", "https://github.com/phoboslab/qoi"],
 	libwebp: ["v1.6.0", "https://github.com/webmproject/libwebp"],
-	libjxl: ["v0.11.1", "https://github.com/libjxl/libjxl"],
-	libavif: ["v1.3.0", "https://github.com/AOMediaCodec/libavif"],
+	libjxl: ["v0.11.2", "https://github.com/libjxl/libjxl"],
+	libavif: ["v1.4.0", "https://github.com/AOMediaCodec/libavif"],
 	aom: ["v3.13.1", "https://aomedia.googlesource.com/aom"],
 	libwebp2: [
-		"dbbdedb69a281d76481ada57d6820b9d4c933749",
+		"8720150cdc4c5c51a11a809a93110f38035b6048",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
 	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
-	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
-	libheif: ["v1.20.2", "https://github.com/strukturag/libheif"],
-	// vvenc: ["v1.12.0", "https://github.com/fraunhoferhhi/vvenc"],
-	// vvdec: ["v2.3.0", "https://github.com/fraunhoferhhi/vvdec"],
+	libde265: ["v1.0.17", "https://github.com/strukturag/libde265"],
+	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
+	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
+	vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
 
 // It also builds libsharpyuv.a which used in other encoders.
@@ -31,7 +31,7 @@ function buildWebPLibrary() {
 	emcmake({
 		outFile: "vendor/libwebp/libwebp.a",
 		src: "vendor/libwebp",
-		flags: "-msse2 -msse4.1 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP",
+		flags: "-msse3 -mavx2 -msse4.2 -msimd128 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP -DWEBP_USE_SSE2",
 		cflags: "-std=c89",
 		options: {
 			WEBP_ENABLE_SIMD: 1,
@@ -97,11 +97,13 @@ export function buildWebP() {
 		"-I vendor/libwebp",
 		"vendor/libwebp/libwebp.a",
 		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd webp-enc.d.ts",
 	]);
 	emcc("cpp/webp_dec.cpp", [
 		"-I vendor/libwebp",
 		"vendor/libwebp/libwebp.a",
 		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd webp-dec.d.ts",
 	]);
 }
 
@@ -135,7 +137,10 @@ export function buildJXL() {
 		"vendor/libjxl/third_party/brotli/libbrotlicommon.a",
 		"vendor/libjxl/third_party/highway/libhwy.a",
 	];
+	includes.push("--emit-tsd jxl-enc.d.ts");
 	emcc("cpp/jxl_enc.cpp", includes);
+	includes.pop();
+	includes.push("--emit-tsd jxl-dec.d.ts");
 	emcc("cpp/jxl_dec.cpp", includes);
 }
 
@@ -179,7 +184,7 @@ function buildAVIFPartial(isEncode) {
 			AOM_LIBRARY: `vendor/aom/${typeName}-build/libaom.a`,
 			AOM_INCLUDE_DIR: "vendor/aom",
 
-			AVIF_LIBYUV: "LOCAL",
+			AVIF_LIBYUV: "OFF",
 
 			AVIF_LIBSHARPYUV: "SYSTEM",
 			LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
@@ -194,6 +199,7 @@ function buildAVIFPartial(isEncode) {
 		"vendor/libwebp/libsharpyuv.a",
 		`vendor/aom/${typeName}-build/libaom.a`,
 		`vendor/libavif/${typeName}-build/libavif.a`,
+		`--emit-tsd avif-${typeName}.d.ts`,
 	]);
 }
 
@@ -211,12 +217,14 @@ export function buildWebP2() {
 		outFile: "vendor/wp2_build/libwebp2.a",
 		src: "vendor/libwebp2",
 		dist: "vendor/wp2_build",
+		flags: "-msse4.2 -msimd128",
 		options: {
 			WP2_BUILD_EXAMPLES: 0,
 			WP2_BUILD_TESTS: 0,
 			WP2_ENABLE_TESTS: 0,
 			WP2_BUILD_EXTRAS: 0,
 			WP2_ENABLE_SIMD: 1,
+			WP2_ENABLE_SIMD_DEFAULT: 1,
 			CMAKE_DISABLE_FIND_PACKAGE_Threads: 1,
 
 			// Fails in vdebug.cc
@@ -226,10 +234,12 @@ export function buildWebP2() {
 	emcc("cpp/wp2_enc.cpp", [
 		"-I vendor/libwebp2",
 		"vendor/wp2_build/libwebp2.a",
+		"--emit-tsd wp2-enc.d.ts",
 	]);
 	emcc("cpp/wp2_dec.cpp", [
 		"-I vendor/libwebp2",
 		"vendor/wp2_build/libwebp2.a",
+		`--emit-tsd wp2-dec.d.ts`,
 	]);
 }
 
@@ -239,7 +249,10 @@ function buildHEICPartial(isEncode) {
 		outFile: `vendor/${typeName}/libheif/libheif.a`,
 		src: "vendor/libheif",
 		dist: "vendor/" + typeName,
-		exceptions: true,
+		exceptions: false,
+		flags: "-Dthrow= -DLIBHEIF_BOX_EMSCRIPTEN_H=",
+		// flags: isEncode ? "-pthread" : "",
+		// flags: "-D__EMSCRIPTEN_STANDALONE_WASM__=1",
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
 			WITH_AOM_DECODER: 0,
@@ -249,13 +262,18 @@ function buildHEICPartial(isEncode) {
 			ENABLE_MULTITHREADING_SUPPORT: 0,
 			BUILD_TESTING: 0,
 			BUILD_SHARED_LIBS: 0,
+			ENABLE_PLUGIN_LOADING: 0,
+			WITH_X265: isEncode,
+			WITH_LIBDE265: !isEncode,
+			WITH_OpenH264_DECODER: 0,
+			WITH_X264: 0,
 
 			...(isEncode ? {
 				LIBSHARPYUV_INCLUDE_DIR: "vendor/libwebp",
 				LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
 
 				X265_INCLUDE_DIR: "vendor/x265/source",
-				X265_LIBRARY: "vendor/x265/8bit/libx265.a",
+				X265_LIBRARY: "vendor/x265/source/libx265.a",
 			} : {
 				LIBDE265_INCLUDE_DIR: "vendor/libde265",
 				LIBDE265_LIBRARY: "vendor/libde265/libde265/libde265.a",
@@ -271,19 +289,44 @@ function buildHEIC() {
 			"\n    elseif(X86 AND NOT X64)", "\n    endif()");
 	}
 
-	// buildWebPLibrary();
+	buildWebPLibrary();
+		execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/x265_fix.patch && git apply ../../patches/x265_fix.patch \
+		|| git apply --check --reverse ../../patches/x265_fix.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/x265",
+		stdio: "inherit",
+	}
+	);	
+	const x265Flags = [
+				"pthread_create=gthread_create",
+		"pthread_join=gthread_join",
+		"pthread_cond_init=gthread_cond_init",
+		"pthread_cond_destroy=gthread_cond_destroy",
+				"pthread_cond_wait=gthread_cond_wait",
 
+		"pthread_cond_broadcast=gthread_cond_broadcast",
+		"pthread_cond_signal=gthread_cond_signal",
+		"pthread_cond_timedwait=gthread_cond_timedwait",
+	].map(flags => "-D" + flags).join(" ");
 	const x265Options = {
 		ENABLE_LIBNUMA: 0,
 		ENABLE_SHARED: 0,
 		ENABLE_CLI: 0,
 		ENABLE_ASSEMBLY: 0,
+		AARCH64_RUNTIME_CPU_DETECT: 0,
 	};
 
 	emcmake({
 		outFile: "vendor/x265/12bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/12bit",
+		// flags: "-pthread",
+		flags: x265Flags,
 		options: {
 			...x265Options,
 			HIGH_BIT_DEPTH: 1,
@@ -295,6 +338,9 @@ function buildHEIC() {
 		outFile: "vendor/x265/10bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/10bit",
+		// flags: "-pthread",
+				flags: x265Flags,
+
 		options: {
 			...x265Options,
 			HIGH_BIT_DEPTH: 1,
@@ -302,13 +348,18 @@ function buildHEIC() {
 		},
 	});
 	emcmake({
-		outFile: "vendor/x265/source/libx265.a",
+		outFile: "vendor/x265/8bit/libx265.a",
 		src: "vendor/x265/source",
+		dist: "vendor/x265/8bit",
+		// flags: "-pthread",
+				flags: x265Flags,
+
 		options: {
 			...x265Options,
 			LINKED_10BIT: 1,
 			LINKED_12BIT: 1,
-			EXTRA_LIB: "vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a;-ldl",
+			EXTRA_LIB: "\"vendor/x265/10bit/libx265.a;vendor/x265/12bit/libx265.a\"",
+			EXTRA_LINK_FLAGS:"\"-L. -lembind\"",
 		},
 	});
 
@@ -321,44 +372,115 @@ function buildHEIC() {
 			ENABLE_DECODER: 0,
 		},
 	});
-
-	// TODO: single thread
+	const mri = `
+	CREATE vendor/x265/source/libx265.a
+	ADDLIB vendor/x265/8bit/libx265.a
+	ADDLIB vendor/x265/10bit/libx265.a
+	ADDLIB vendor/x265/12bit/libx265.a
+	SAVE
+	END
+	`;	
+	execFileSync("emar", ["-M"], { 
+			input: mri, 
+			stdio: ["pipe", "inherit", "inherit"],
+		}
+	);
+	copyFileSync("vendor/x265/8bit/x265_config.h", "vendor/x265/source/x265_config.h")
 	buildHEICPartial(true);
-	buildHEICPartial(false);
-
+// CROSS_ORIGIN
+	// config.debug = true
 	emcc("cpp/heic_enc.cpp", [
-		"-s", "ENVIRONMENT=web,worker",
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
-		"-pthread",
-		"-s", "PTHREAD_POOL_SIZE=2",
-		"-fexceptions",
+		//  "-sASSERTIONS=2",
+		//  "-sDYNAMIC_EXECUTION=0",
+		//  "-sEMBIND_AOT=1",
+		 "-sRETAIN_COMPILER_SETTINGS=1",
+		//  "-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"doRewind\"]",
+		//  "-sWASM_BIGINT=1",
+		//  "-sUSE_CLOSURE_COMPILER=1",
+		//  "-sDYNAMIC_EXECUTION=0",
+		//  "-sDYNCALLS=1",
+		//  "-sEMBIND_AOT=1",
+		// "--emit-tsd interface.d.ts",
+		// "-pthread",
+		// "-s", "PTHREAD_POOL_SIZE=2",
+		// "-fexceptions",
+		// "-gsource-map",
+		// "-g2",
+		// "-g1",
+		// "-sASYNCIFY_REMOVE=\"encode_foo_encode_bar(*)\"",
+		//   "-gline-tables-only",
+		// "-sJSPI_EXPORTS=encode",
+		// "-fwasm-exceptions",
+		// "-fwasm-exceptions",
+		// "-sJSPI",
+		// "-sASYNCIFY_STACK_SIZE=2048",
+		// "-sJSPI_EXPORTS=__wasm_call_ctors",
+		// "-sASYNCIFY_ADVISE=1",
+		"-sASYNCIFY_ADD=\"heif_context_encode_image,green_thread_entry(*),gthread_cond_wait,gthread_join,gthread_cond_timedwait,*ThreadShim(*)\"",
+		// "-sASYNCIFY_ONLY=gthread_cond_wait,gthread_join,gthread_cond_timedwait",
+		// "-sASYNCIFY_DEBUG=1",
+		// "-sASYNCIFY_IGNORE_INDIRECT=1",
+		"-fno-exceptions",
+		"-sASYNCIFY=1",
+
+// "-sSTACK_SIZE=10MB",
+		// "-Wl,--allow-multiple-definition", // our pthread impls override library_pthread_stub.o
 		"vendor/libwebp/libsharpyuv.a",
 		"vendor/x265/source/libx265.a",
-		"vendor/x265/10bit/libx265.a",
-		"vendor/x265/12bit/libx265.a",
 		"vendor/heic_enc/libheif/libheif.a",
+		"--emit-tsd heic-enc.d.ts",
 	]);
+	// config.debug = false
+	buildHEICPartial(false);
+
 
 	emcc("cpp/heic_dec.cpp", [
-		"-s", "ENVIRONMENT=web",
+		// "-s", "ENVIRONMENT=web",
 		"-I vendor/heic_dec",
 		"-I vendor/libheif/libheif/api",
-		"-fexceptions",
+		// "-fexceptions",
+		"-fno-exceptions",
+		// "-fwasm-exceptions",
 		"vendor/libde265/libde265/libde265.a",
 		"vendor/heic_dec/libheif/libheif.a",
+		"--emit-tsd heic-dec.d.ts",
 	]);
 
-	fixPThreadImpl("dist/heic-enc.js", 1);
+	// fixPThreadImpl("dist/heic-enc.js", 1);
 }
 
 function buildVVIC() {
+	buildWebPLibrary();
+	execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/vvdec.patch && git apply ../../patches/vvdec.patch \
+		|| git apply --check --reverse ../../patches/vvdec.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/vvdec",
+		stdio: "inherit",
+	}
+	);	
 	// If build failed, try to delete "use ccache" section in CMakeLists.txt
-	removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
+	// removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
+	// removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
+	// removeRange("vendor/vvdec/")
 	emcmake({
 		outFile: "vendor/vvdec/lib/release-static/libvvdec.a",
 		src: "vendor/vvdec",
 		exceptions: true,
+		flags: "-msse4.2",
+		options: {
+			VVDEC_ENABLE_X86_SIMD:1,
+			VVDEC_ENABLE_ARM_SIMD: 1,
+			VVDEC_LIBRARY_ONLY: 1,
+			BUILD_SHARED_LIBS: 0,
+			VVDEC_ENABLE_LINK_TIME_OPT: config.debug ? 0 : 1,
+		}
 	});
 
 	removeRange("vendor/vvenc/CMakeLists.txt", "\n# use ccache", "\n\n");
@@ -366,19 +488,34 @@ function buildVVIC() {
 		outFile: "vendor/vvenc/lib/release-static/libvvenc.a",
 		src: "vendor/vvenc",
 		exceptions: true,
+		flags: "-msse4.2",
 		options: {
 			// Some instructions are not supported in WASM.
-			VVENC_ENABLE_X86_SIMD: 0,
+			VVENC_ENABLE_X86_SIMD: 1,
 			BUILD_SHARED_LIBS: 0,
 			VVENC_ENABLE_INSTALL: 0,
 			VVENC_ENABLE_THIRDPARTY_JSON: 0,
+			VVENC_ENABLE_ARM_SIMD: 1,
 		},
 	});
-
+	execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/heif_vvc_single_thread.patch && git apply ../../patches/heif_vvc_single_thread.patch \
+		|| git apply --check --reverse ../../patches/heif_vvc_single_thread.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/libheif",
+		stdio: "inherit",
+	}
+	);	
 	emcmake({
 		outFile: "vendor/libheif_vvic/libheif/libheif.a",
 		src: "vendor/libheif",
 		dist: "vendor/libheif_vvic",
+		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H=",
+		exceptions: true,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
 			WITH_AOM_DECODER: 0,
@@ -398,22 +535,23 @@ function buildVVIC() {
 			WITH_VVENC: 1,
 			WITH_VVDEC: 1,
 
-			vvenc_INCLUDE_DIR: "vendor/vvenc/include",
-			vvenc_LIBRARY: "vendor/vvenc/lib/release-static/libvvenc.a",
-
-			vvdec_INCLUDE_DIR: "vendor/vvdec/include",
-			vvdec_LIBRARY: "vendor/vvdec/lib/release-static/libvvdec.a",
+			vvenc_DIR: "vendor/vvenc/cmake/install",
+			vvdec_DIR: "vendor/vvdec/cmake/install",
 		},
 	});
 
 	emcc("cpp/vvic.cpp", [
-		"-s", "ENVIRONMENT=web,worker",
-		"-I vendor/libheif",
+		"-I vendor/libheif_vvic",
 		"-I vendor/libheif/libheif/api",
-		"-pthread",
+		// "-pthread",
+		"-fexceptions",
+		"-fwasm-exceptions",
+		// "-sWASM_EXCEPTIONS=1",
 		"vendor/libheif_vvic/libheif/libheif.a",
 		"vendor/vvenc/lib/release-static/libvvenc.a",
 		"vendor/vvdec/lib/release-static/libvvdec.a",
+		"vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd vvic.d.ts",
 	]);
 }
 
@@ -435,6 +573,5 @@ if (process.argv[2] === "update") {
 	buildHEIC();
 	buildPNGQuant();
 	// buildVVIC();
-
 	repositories.writeVersionsJSON();
 }

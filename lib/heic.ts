@@ -100,9 +100,31 @@ export async function loadDecoder(input?: WasmSource) {
 }
 
 export function encode(image: ImageDataLike, options?: Options) {
-	return encodeES("HEIC Encode", encoderWASM, defaultOptions, image, options);
+	const new_encode = (...args: any[]) => {
+		const holder = {} as {
+			error?:any,
+			success?:any,
+		}
+		encoderWASM.encode(...args,holder);
+		if (holder.error) {
+			return holder.error;
+		}
+		if (holder.success){
+			return holder.success
+		}
+	}
+	
+	return encodeES("HEIC Encode", { encode:new_encode }, defaultOptions, image, options);
 }
 
 export function decode(input: BufferSource) {
 	return check<ImageData>(decoderWASM.decode(input), "HEIC Decode");
+}
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
 }

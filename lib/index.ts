@@ -18,7 +18,7 @@ declare global {
 
 globalThis._icodec_ImageData = (data, w, h, depth) => {
 	if (depth === 8) {
-		return new ImageDataEx(data, w, h);
+		return new ImageDataEx(data as ImageDataArray, w, h);
 	}
 	return new PureImageData(data, w, h, depth);
 };

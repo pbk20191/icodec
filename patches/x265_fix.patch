@@ -1,0 +1,13 @@
+diff --git a/source/common/primitives.cpp b/source/common/primitives.cpp
+index 4db706d..4694ac3 100644
+--- a/source/common/primitives.cpp
++++ b/source/common/primitives.cpp
+@@ -293,7 +293,7 @@ extern "C" {
+ int PFX(cpu_cpuid_test)(void) { return 0; }
+ void PFX(cpu_emms)(void) {}
+ void PFX(cpu_cpuid)(uint32_t, uint32_t *eax, uint32_t *, uint32_t *, uint32_t *) { *eax = 0; }
+-void PFX(cpu_xgetbv)(uint32_t, uint32_t *, uint32_t *) {}
++uint64_t PFX(cpu_xgetbv)(int) { return 0; }
+ 
+ #if X265_ARCH_ARM == 0
+ void PFX(cpu_neon_test)(void) {}

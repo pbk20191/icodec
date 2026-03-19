@@ -16,6 +16,7 @@ describe("encode 8bit", () => {
 	const image = generateTestImage(8);
 
 	test("JPEG", testEncode.bind(jpeg, image));
+	test("HEIC", testEncode.bind(heic, image));
 	test("PNG", testEncode.bind(png, image));
 	test("QOI", testEncode.bind(qoi, image));
 	test("WebP", testEncode.bind(webp, image));
@@ -27,6 +28,7 @@ describe("encode 8bit", () => {
 describe("encode 10bit", () => {
 	const image = generateTestImage(10);
 
+	test("HEIC", testEncode.bind(heic, image));
 	test("AVIF", testEncode.bind(avif, image));
 	test("JXL", testEncode.bind(jxl, image));
 });
@@ -34,6 +36,7 @@ describe("encode 10bit", () => {
 describe("encode 12bit", () => {
 	const image = generateTestImage(12);
 
+	test("HEIC", testEncode.bind(heic, image));
 	test("AVIF", testEncode.bind(avif, image));
 	test("JXL", testEncode.bind(jxl, image));
 });

@@ -1,14 +1,22 @@
 {
 	"name": "@pbk20191/icodec",
-	"version": "0.6.1",
+	"version": "0.6.9",
+	"private": false,
 	"description": "Image encoders & decoders built with WebAssembly",
 	"license": "MIT",
 	"author": "pbk20191 <contact@pbk20191.com>",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/pbk20191/icodec"
+		"url": "git+https://github.com/pbk20191/icodec.git"
 	},
 	"type": "module",
+	"scripts": {
+		"wasm": "node scripts/build.js",
+		"types": "tsc -p tsconfig.json --emitDeclarationOnly && tsc -p tsconfig.json",
+		"build": "npm run wasm && npm run types",
+		"test-convert": "tsx test/test-convert.js",
+		"demo": "node scripts/start-demo.js"
+	},
 	"keywords": [
 		"WebAssembly",
 		"wasm",
@@ -56,6 +64,7 @@
 		"sharp": "^0.34.5",
 		"smol-toml": "^1.5.2",
 		"typescript": "^5.9.3",
-		"version-compare": "^3.12.0"
+		"version-compare": "^3.12.0",
+		"tsx": "^4.21.0"
 	}
 }

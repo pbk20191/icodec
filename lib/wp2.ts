@@ -1,9 +1,9 @@
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
 import wasmFactoryEnc from "../dist/wp2-enc.js";
 import wasmFactoryDec from "../dist/wp2-dec.js";
 
 export enum UVMode {
-	UVAdapt,
+	UVAdapt = 0,
 	UV420,
 	UV444,
 	UVAuto,
@@ -61,8 +61,8 @@ export interface Options {
 	 */
 	sns?: number;
 
-	uvMode?: UVMode;
-	cspType?: Csp;
+	uvMode?: EnumValue<typeof UVMode>;
+	cspType?: EnumValue<typeof Csp>;
 
 	/**
 	 * error diffusion strength [0=off, 100=max]
@@ -110,4 +110,12 @@ export function encode(image: ImageDataLike, options?: Options) {
 
 export function decode(input: BufferSource) {
 	return check<ImageData>(decoderWASM.decode(input), "Webp2 Decode");
+}
+
+export function unloadDecoder() {
+	decoderWASM = undefined;
+}
+
+export function unloadEncoder() {
+	encoderWASM = undefined;
 }

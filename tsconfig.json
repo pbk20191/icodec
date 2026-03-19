@@ -1,5 +1,5 @@
 {
-	"include": ["lib/*.ts"],
+	"include": ["lib/*.ts", "dist/*.js"],
 	"exclude": ["dist"],
 	"compilerOptions": {
 		"target": "ESNext",

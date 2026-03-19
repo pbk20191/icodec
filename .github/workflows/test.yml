@@ -1,9 +1,6 @@
-name: Publish package to npm Packages
+name: build npm Packages
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
 
 permissions:
   contents: read
@@ -14,16 +11,16 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    # permissions:
+    #   contents: read
       # packages: write
-      id-token: write  # Required for OIDC
+    #   id-token: write  # Required for OIDC
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: 'https://registry.npmjs.org'
+        #   registry-url: 'https://registry.npmjs.org'
           # registry-url: 'https://npm.pkg.github.com'
           # Defaults to the user or organization that owns the workflow file
           # scope: '@pbk20191'
@@ -51,6 +48,6 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm publish
+    #   - run: npm publish
         # env:
           # NPM_CONFIG_PROVENANCE: true

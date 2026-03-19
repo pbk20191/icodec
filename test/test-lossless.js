@@ -1,5 +1,5 @@
 import { test } from "node:test";
-import { avif, jxl, png, qoi, webp, wp2 } from "../lib/node.js";
+import { avif, jxl, png, qoi, webp, wp2, heic } from "../lib/node.js";
 import { assertSimilar, getRawPixels } from "./fixtures.js";
 
 const image = getRawPixels("alpha");
@@ -23,3 +23,4 @@ test("PNG", testLossless.bind(png, { quantize: false }));
 test("QOI", testLossless.bind(qoi));
 test("JXL", testLossless.bind(jxl, { lossless: true }));
 test("WebP2", testLossless.bind(wp2, { quality: 100 }));
+test("HEIC", testLossless.bind(heic, { lossless: true }));

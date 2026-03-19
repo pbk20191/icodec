@@ -1,0 +1,93 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b4a2a3a..19f923c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -105,13 +105,13 @@ if( VVDEC_ENABLE_ARM_SIMD )
+ endif()
+ 
+ if( VVDEC_TARGET_ARCH STREQUAL "WASM" )
+-  add_compile_options( -pthread )
++  # add_compile_options( -pthread )
+   add_link_options(
+     --bind
+     -sWASM_BIGINT
+     -sINITIAL_MEMORY=1300MB # this should be enough for FullHD decoding
+     -sINVOKE_RUN=0          # don't call main() automatically
+-    -sUSE_PTHREADS
++    # -sUSE_PTHREADS
+     #-sPROXY_TO_PTHREAD
+     #-sPTHREAD_POOL_SIZE=20
+     -sMINIFY_HTML=0
+@@ -250,7 +250,7 @@ if( NOT CMAKE_BUILD_TYPE )
+ endif()
+ 
+ # set c++14
+-set( CMAKE_CXX_STANDARD 14 )
++set( CMAKE_CXX_STANDARD 17 )
+ set( CMAKE_CXX_EXTENSIONS OFF )
+ set( CMAKE_CXX_STANDARD_REQUIRED ON )
+ 
+diff --git a/source/Lib/vvdec/wasm_bindings.cpp b/source/Lib/vvdec/wasm_bindings.cpp
+index c4c2712..1bf8f88 100644
+--- a/source/Lib/vvdec/wasm_bindings.cpp
++++ b/source/Lib/vvdec/wasm_bindings.cpp
+@@ -62,7 +62,7 @@ struct vvdecFrameHandle
+ {
+   vvdecFrame* frame = nullptr;
+ 
+-  val  getFrame() const { return val( frame ); }
++  val  getFrame() const { return val( frame, allow_raw_pointers() ); }
+   void reset() { frame = nullptr; }
+ };
+ 
+@@ -91,7 +91,7 @@ static val getPlanesArray( const vvdecFrame& f )
+   vvdecPlane* p0 = const_cast<vvdecPlane*>( &f.planes[0] );
+   vvdecPlane* p1 = const_cast<vvdecPlane*>( &f.planes[1] );
+   vvdecPlane* p2 = const_cast<vvdecPlane*>( &f.planes[2] );
+-  return val::array<val>( { val( p0 ), val( p1 ), val( p2 ) } );
++  return val::array<val>( { val( p0, allow_raw_pointers() ), val( p1, allow_raw_pointers() ), val( p2, allow_raw_pointers() ) } );
+ }
+ 
+ // return a JavaScript TypedArray from raw plane pointers
+@@ -191,7 +191,7 @@ EMSCRIPTEN_BINDINGS( vvdec )
+     .property( "sequenceNumber", &vvdecFrame::sequenceNumber )
+     .property( "cts",            &vvdecFrame::cts            )
+     .property( "ctsValid",       &vvdecFrame::ctsValid       )
+-    .property<val>( "picAttributes", []( auto& f ){ return val( f.picAttributes ); } )
++    .property<val>( "picAttributes", []( auto& f ){ return val( f.picAttributes, allow_raw_pointers() ); } )
+   ;
+ 
+   // handle class to avoid having to manually work with double pointers in javascript
+@@ -208,8 +208,8 @@ EMSCRIPTEN_BINDINGS( vvdec )
+     .property( "temporalLayer", &vvdecPicAttributes::temporalLayer )
+     .property( "poc",           &vvdecPicAttributes::poc           )
+     .property( "bits",          &vvdecPicAttributes::bits          )
+-    .property<val>( "vui", []( auto& a ){ return val( a.vui ); }   )
+-    .property<val>( "hrd", []( auto& a ){ return val( a.hrd ); }   )
++    .property<val>( "vui", []( auto& a ){ return val( a.vui, allow_raw_pointers() ); }   )
++    .property<val>( "hrd", []( auto& a ){ return val( a.hrd, allow_raw_pointers() ); }   )
+   ;
+ 
+   class_<vvdecVui>( "Vui" )
+@@ -414,8 +414,8 @@ void vvdec_get_RGBA_frame_impl( uint8_t* outBuffer, const vvdecFrame* frame )
+       for( unsigned x = 0; x < width; ++x )
+       {
+         // indices for Y, U, or V arrays
+-        const int iY  = x + y * strideY;
+-        const int iUV = x / 2 + y / 2 * strideUV;
++        const int iY  = x + y * (int)strideY;
++        const int iUV = x / 2 + y / 2 * (int)strideUV;
+ 
+         // input values (U&V converted to signed range)
+         const int Y = frameY[iY];
+@@ -455,8 +455,8 @@ void vvdec_get_RGBA_frame_impl( uint8_t* outBuffer, const vvdecFrame* frame )
+       for( unsigned x = 0; x < width; x += 8 )   // process 8 Pels per step
+       {
+         // indices for Y, U, or V arrays
+-        const int iY  = x + y * strideY;
+-        const int iUV = x / 2 + y / 2 * strideUV;
++        const int iY  = x + y * (int)strideY;
++        const int iUV = x / 2 + y / 2 * (int)strideUV;
+ 
+         // load UV, zero-extend to 4 * uin32_t, and  convert to signed range
+         v128_t V = wasm_i32x4_sub( wasm_u32x4_load16x4( &frameV[iUV] ), uvOffs128 );
