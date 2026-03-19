@@ -19,7 +19,7 @@ const repositories = new RepositoryManager({
 		"b88188eef99dc42a9cab587b0d66819b37ee1c2c",
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
-	x265: ["5b3e613d7d46a51bbd6b8a071bfc725a54e5e62d", "https://bitbucket.org/multicoreware/x265_git"],
+	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.16", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
 	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
@@ -288,6 +288,18 @@ function buildHEIC() {
 	}
 
 	buildWebPLibrary();
+		execFileSync(
+	"bash",
+	["-lc", `
+		git apply --check ../../patches/x265_fix.patch && git apply ../../patches/x265_fix.patch \
+		|| git apply --check --reverse ../../patches/x265_fix.patch \
+		|| (echo "Patch failed" && exit 1)
+	`],
+	{
+		cwd: "vendor/x265",
+		stdio: "inherit",
+	}
+	);	
 	const x265Flags = [
 				"pthread_create=gthread_create",
 		"pthread_join=gthread_join",
@@ -304,6 +316,7 @@ function buildHEIC() {
 		ENABLE_SHARED: 0,
 		ENABLE_CLI: 0,
 		ENABLE_ASSEMBLY: 0,
+		AARCH64_RUNTIME_CPU_DETECT: 0,
 	};
 
 	emcmake({
