@@ -48,6 +48,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+      - run: npm run convert-test
     #   - run: npm publish
         # env:
           # NPM_CONFIG_PROVENANCE: true

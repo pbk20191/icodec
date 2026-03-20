@@ -9,8 +9,8 @@ thread_local val jsError = val::global("Error");
 static __inline__ val makeError(heif_error& err) {
 	auto t = std::string(err.message);
 	val error = jsError.new_(t);
-	error.set("code", err.code);
-	error.set("subcode", err.subcode);
+	error.set("code", (int)err.code);
+	error.set("subcode", (int)err.subcode);
 	return error;
 }
 

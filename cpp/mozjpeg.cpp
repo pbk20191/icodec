@@ -2,6 +2,7 @@
 #include "icodec.h"
 #include "jconfig.h"
 #include "jpeglib.h"
+#include <csetjmp>
 
 extern "C"
 {
@@ -28,6 +29,31 @@ struct MozJpegOptions
 	int chroma_quality;
 };
 
+struct JpegErrorContext {
+    jpeg_error_mgr pub;
+    jmp_buf jmp;
+    char message[JMSG_LENGTH_MAX];
+};
+
+// libjpeg가 에러 시 호출할 함수
+static void jpegErrorExit(j_common_ptr cinfo) {
+    auto* err = reinterpret_cast<JpegErrorContext*>(cinfo->err);
+
+    // 사람이 읽을 수 있는 메시지 생성
+    (*cinfo->err->format_message)(cinfo, err->message);
+
+    // 원하면 trace/info 레벨도 같이 저장 가능
+    longjmp(err->jmp, 1);
+}
+
+// JS로 넘길 Error 객체 생성
+static val makeJpegError(const JpegErrorContext& err) {
+    val Error = val::global("Error");
+    val e = Error.new_(std::string(err.message));
+    e.set("name", std::string("JpegError"));
+    return e;
+}
+
 val encode(std::string pixels, uint32_t width, uint32_t height, MozJpegOptions options)
 {
 	// The code below is basically the `write_JPEG_file` function from
@@ -36,7 +62,9 @@ val encode(std::string pixels, uint32_t width, uint32_t height, MozJpegOptions o
 
 	/* Step 1: allocate and initialize JPEG compression object */
 	jpeg_compress_struct cinfo;
-	jpeg_error_mgr jerr;
+	JpegErrorContext jerr{};
+
+	// jpeg_error_mgr jerr;
 
 	/*
 	 * We have to set up the error handler first, in case the initialization
@@ -44,8 +72,13 @@ val encode(std::string pixels, uint32_t width, uint32_t height, MozJpegOptions o
 	 * This routine fills in the contents of struct jerr, and returns jerr's
 	 * address which we place into the link field in cinfo.
 	 */
-	cinfo.err = jpeg_std_error(&jerr);
-
+	cinfo.err = jpeg_std_error(&jerr.pub);
+	jerr.pub.error_exit = jpegErrorExit;
+	if (setjmp(jerr.jmp)) {
+		// If we get here, the JPEG code has signaled an error.
+		jpeg_destroy_compress(&cinfo);
+		return makeJpegError(jerr);
+	}
 	jpeg_create_compress(&cinfo);
 
 	/* Step 2: specify data destination (eg, a file) */
@@ -145,10 +178,18 @@ val decode(std::string input)
 	auto inBuffer = reinterpret_cast<const uint8_t *>(input.c_str());
 
 	jpeg_decompress_struct cinfo;
-	jpeg_error_mgr jerr;
+	JpegErrorContext jerr{};
+
+	// jpeg_error_mgr jerr;
 
 	// Initialize the JPEG decompression object with default error handling.
-	cinfo.err = jpeg_std_error(&jerr);
+	cinfo.err = jpeg_std_error(&jerr.pub);
+	jerr.pub.error_exit = jpegErrorExit;
+	if (setjmp(jerr.jmp)) {
+		// If we get here, the JPEG code has signaled an error.
+		jpeg_destroy_decompress(&cinfo);
+		return makeJpegError(jerr);
+	}
 	jpeg_create_decompress(&cinfo);
 
 	jpeg_mem_src(&cinfo, inBuffer, input.length());

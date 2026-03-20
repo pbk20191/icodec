@@ -25,8 +25,8 @@ thread_local val jsError = val::global("Error");
 static __inline__ val makeError(heif_error& err) {
 	auto t = std::string(err.message);
 	val error = jsError.new_(t);
-	error.set("code", err.code);
-	error.set("subcode", err.subcode);
+	error.set("code", (int)err.code);
+	error.set("subcode", (int)err.subcode);
 	return error;
 }
 
@@ -162,11 +162,11 @@ void encode(std::string pixels, int width, int height, HeicOptions options, val 
 		return;
 	}
 	
-	// err = heif_encoder_set_logging_level(encoder.get(), 4);
-	// if (err.code != heif_error_Ok) {
-	// 	returnBuffer.set("error",makeError(err));
-	// 	return;
-	// }
+	err = heif_encoder_set_logging_level(encoder.get(), 4);
+	if (err.code != heif_error_Ok) {
+		returnBuffer.set("error",makeError(err));
+		return;
+	}
 	#endif
 
 	auto context = toRAII(heif_context_alloc(), heif_context_free);
