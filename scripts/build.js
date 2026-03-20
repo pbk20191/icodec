@@ -20,10 +20,10 @@ const repositories = new RepositoryManager({
 		"https://chromium.googlesource.com/codecs/libwebp2",
 	],
 	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
-	libde265: ["v1.0.17", "https://github.com/strukturag/libde265"],
+	libde265: ["v1.0.18", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
-	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
-	vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
+	// vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
+	// vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
 
 // It also builds libsharpyuv.a which used in other encoders.
@@ -362,7 +362,8 @@ function buildHEIC() {
 			EXTRA_LINK_FLAGS:"\"-L. -lembind\"",
 		},
 	});
-
+	
+	removeRange("vendor/libde265/CMakeLists.txt", "#if !defined(__x86_64) && !defined(__i386__) ", "int main");
 	emcmake({
 		outFile: "vendor/libde265/libde265/libde265.a",
 		src: "vendor/libde265",
