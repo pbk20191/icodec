@@ -19,7 +19,7 @@ val decode(std::string input)
 	{
 		return val("Out of memory");
 	}
-
+	decoder->imageContentToDecode |= AVIF_IMAGE_CONTENT_SAMPLE_TRANSFORMS;
 	// Do not use `avifDecoderReadMemory`, it will do a redundant copy.
 	CHECK_STATUS(avifDecoderSetIOMemory(decoder.get(), bytes, input.length()));
 
