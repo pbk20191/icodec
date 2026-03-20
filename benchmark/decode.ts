@@ -70,7 +70,7 @@ export default defineSuite({
 
 			scene.bench("icodec", () => decode(input));
 
-			if (name in instance && name !== "jxl") {
+			if (name in instance && name !== "wp2") {
 				scene.benchAsync("Sharp", () => instance.raw().toBuffer());
 			}
 		} else {
