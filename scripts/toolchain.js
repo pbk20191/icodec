@@ -83,7 +83,7 @@ export function emcmake(settings) {
 		return;
 	}
 
-	let cxxFlags = "-msimd128";
+	let cxxFlags = "-msimd128 -msse4.2 -mavx2";
 	if (config.wasm64) {
 		cxxFlags += " -sMEMORY64";
 	}

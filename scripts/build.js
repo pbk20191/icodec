@@ -31,7 +31,7 @@ function buildWebPLibrary() {
 	emcmake({
 		outFile: "vendor/libwebp/libwebp.a",
 		src: "vendor/libwebp",
-		flags: "-msse3 -mavx2 -msse4.2 -msimd128 -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP -DWEBP_USE_SSE2",
+		flags: "-DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP -DWEBP_USE_SSE2",
 		cflags: "-std=c89",
 		options: {
 			WEBP_ENABLE_SIMD: 1,
@@ -110,6 +110,8 @@ export function buildWebP() {
 export function buildJXL() {
 	// highway uses CJS scripts in build, but our project is ESM.
 	writeFileSync("vendor/libjxl/third_party/highway/package.json", "{}");
+	removeRange("vendor/libjxl/third_party/skcms/skcms.cc",
+		"#include <smmintrin.h>", "#endif");
 	emcmake({
 		outFile: "vendor/libjxl/lib/libjxl.a",
 		src: "vendor/libjxl",
@@ -150,7 +152,6 @@ function buildAVIFPartial(isEncode) {
 		outFile: `vendor/aom/${typeName}-build/libaom.a`,
 		src: "vendor/aom",
 		dist: `vendor/aom/${typeName}-build`,
-		flags: "-msse2 -msse4.1",
 		options: {
 			ENABLE_CCACHE: 0,
 			AOM_TARGET_CPU: "generic",
@@ -217,7 +218,6 @@ export function buildWebP2() {
 		outFile: "vendor/wp2_build/libwebp2.a",
 		src: "vendor/libwebp2",
 		dist: "vendor/wp2_build",
-		flags: "-msse4.2 -msimd128",
 		options: {
 			WP2_BUILD_EXAMPLES: 0,
 			WP2_BUILD_TESTS: 0,
@@ -473,7 +473,6 @@ function buildVVIC() {
 		outFile: "vendor/vvdec/lib/release-static/libvvdec.a",
 		src: "vendor/vvdec",
 		exceptions: true,
-		flags: "-msse4.2",
 		options: {
 			VVDEC_ENABLE_X86_SIMD:1,
 			VVDEC_ENABLE_ARM_SIMD: 1,
@@ -488,7 +487,6 @@ function buildVVIC() {
 		outFile: "vendor/vvenc/lib/release-static/libvvenc.a",
 		src: "vendor/vvenc",
 		exceptions: true,
-		flags: "-msse4.2",
 		options: {
 			// Some instructions are not supported in WASM.
 			VVENC_ENABLE_X86_SIMD: 1,
