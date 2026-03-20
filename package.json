@@ -1,6 +1,6 @@
 {
 	"name": "@pbk20191/icodec",
-	"version": "0.6.9",
+	"version": "0.7.0",
 	"private": false,
 	"description": "Image encoders & decoders built with WebAssembly",
 	"license": "MIT",
