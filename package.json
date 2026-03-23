@@ -34,7 +34,7 @@
 	],
 	"files": [
 		"versions.json",
-		"dist/*.{js,wasm}",
+		"dist/*.{js,wasm,d.ts}",
 		"lib/*.{js,d.ts}"
 	],
 	"exports": {
