@@ -87,8 +87,8 @@ export function emcmake(settings) {
 	if (config.wasm64) {
 		cxxFlags += " -sMEMORY64";
 	}
-	linkerFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
-	cxxFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
+	// linkerFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
+	// cxxFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
 	if (!settings.exceptions) {
 		cxxFlags += " -fno-exceptions";
 		// linkerFlags += " -sDISABLE_EXCEPTION_CATCHING=1";
@@ -136,7 +136,7 @@ export function emcc(input, sourceArguments) {
 		"ALLOW_MEMORY_GROWTH=1",
 		"EXPORT_ES6=1",
 		// "NODEJS_CATCH_REJECTION=0",
-		"WASM_LEGACY_EXCEPTIONS=0",
+		// "WASM_LEGACY_EXCEPTIONS=0",
 		/*
 		 * Default 64KB is too small, causes OOM in some cases.
 		 * libwebp sets it to 5MB, but 2MB seems enough.
