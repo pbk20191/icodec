@@ -81,6 +81,20 @@ Image encoders & decoders built with WebAssembly, support high-depth.
                 <a href='https://chromium.googlesource.com/codecs/libwebp2'>libwebp2</a>
             </td>
             <td>8</td>
+        </tr>S
+        <tr>
+            <td>vvic</td>
+            <td>
+                <a href='https://github.com/strukturag/libheif'>libheif</a>
+                +
+                <a href='https://github.com/fraunhoferhhi/vvenc'>vvenc</a>
+            </td>
+            <td>
+                <a href='https://github.com/strukturag/libheif'>libheif</a>
+                +
+                <a href='https://github.com/fraunhoferhhi/vvdec'>vvdec</a>
+            </td>
+            <td>8</td>
         </tr>
     </tbody>
 </table>
@@ -328,7 +342,3 @@ Start web demo:
 ```shell
 node scripts/start-demo.js
 ```
-
-TODOs:
-
-* Cannot specify vvenc & vvdec paths for libheif build.
