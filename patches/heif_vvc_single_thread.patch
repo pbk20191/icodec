@@ -11,20 +11,13 @@ index 0951572..380404e 100644
  
    const int MaxNaluSize = 256 * 1024;
 diff --git a/libheif/plugins/encoder_vvenc.cc b/libheif/plugins/encoder_vvenc.cc
-index 5f10940..6201d4b 100644
+index 5f10940..f9ea54d 100644
 --- a/libheif/plugins/encoder_vvenc.cc
 +++ b/libheif/plugins/encoder_vvenc.cc
-@@ -462,6 +462,14 @@ static heif_error vvenc_start_sequence_encoding_intern(void* encoder_raw, const
+@@ -462,6 +462,7 @@ static heif_error vvenc_start_sequence_encoding_intern(void* encoder_raw, const
                                 0,
                                 encoder_quality,
                                 VVENC_MEDIUM);
-+  if (options->num_threads == -1) {
-+    params.m_numThreads = 0;
-+  } else if (options->num_threads == 0) {
-+    
-+  } else {
-+    params.m_numThreads = options->num_threads;
-+  }
 +  params.m_numThreads = 0; // Single Thread
    if (ret != VVENC_OK) {
      // TODO: cleanup memory

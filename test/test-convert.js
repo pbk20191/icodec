@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import * as assert from "node:assert";
 import sharp from "sharp";
-import { avif, heic, jpeg, jxl, png, qoi, webp, wp2 } from "../lib/node.js";
+import { avif, heic, jpeg, jxl, png, qoi, webp, wp2, vvic } from "../lib/node.js";
 import { assertSimilar, generateTestImage, getRawPixels, getSnapshot, makeOpaque, updateSnapshot } from "./fixtures.js";
 
 async function testEncode(image, options) {
@@ -23,6 +23,7 @@ describe("encode 8bit", () => {
 	test("AVIF", testEncode.bind(avif, image));
 	test("JXL", testEncode.bind(jxl, image));
 	test("WebP2", testEncode.bind(wp2, image));
+	test("VVIC", testEncode.bind(vvic, image));
 });
 
 describe("encode 10bit", () => {
@@ -75,6 +76,7 @@ describe("decode 8bit", () => {
 	test("AVIF", testDecode.bind(avif, image));
 	test("JXL", testDecode.bind(jxl, image));
 	test("WebP2", testDecode.bind(wp2, image));
+	test("VVIC", testDecode.bind(vvic, image));
 });
 
 describe("decode 12bit", () => {

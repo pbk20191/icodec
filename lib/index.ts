@@ -10,6 +10,7 @@ export * as webp from "./webp.js";
 export * as heic from "./heic.js";
 export * as qoi from "./qoi.js";
 export * as wp2 from "./wp2.js";
+export * as vvic from "./vvic.js";
 
 declare global {
 	// eslint-disable-next-line no-var

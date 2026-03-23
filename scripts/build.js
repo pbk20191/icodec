@@ -22,8 +22,8 @@ const repositories = new RepositoryManager({
 	x265: ["4.1", "https://bitbucket.org/multicoreware/x265_git"],
 	libde265: ["v1.0.18", "https://github.com/strukturag/libde265"],
 	libheif: ["v1.21.2", "https://github.com/strukturag/libheif"],
-	// vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
-	// vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
+	vvenc: ["v1.14.0", "https://github.com/fraunhoferhhi/vvenc"],
+	vvdec: ["v3.1.0", "https://github.com/fraunhoferhhi/vvdec"],
 });
 
 // It also builds libsharpyuv.a which used in other encoders.
@@ -33,6 +33,7 @@ function buildWebPLibrary() {
 		src: "vendor/libwebp",
 		flags: "-DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP -DWEBP_USE_SSE2",
 		cflags: "-std=c89",
+		exceptions: false,
 		options: {
 			WEBP_ENABLE_SIMD: 1,
 			WEBP_BUILD_CWEBP: 0,
@@ -393,36 +394,8 @@ function buildHEIC() {
 	emcc("cpp/heic_enc.cpp", [
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
-		//  "-sASSERTIONS=2",
-		//  "-sDYNAMIC_EXECUTION=0",
-		//  "-sEMBIND_AOT=1",
 		 "-sRETAIN_COMPILER_SETTINGS=1",
-		//  "-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"doRewind\"]",
-		//  "-sWASM_BIGINT=1",
-		//  "-sUSE_CLOSURE_COMPILER=1",
-		//  "-sDYNAMIC_EXECUTION=0",
-		//  "-sDYNCALLS=1",
-		//  "-sEMBIND_AOT=1",
-		// "--emit-tsd interface.d.ts",
-		// "-pthread",
-		// "-s", "PTHREAD_POOL_SIZE=2",
-		// "-fexceptions",
-		// "-gsource-map",
-		// "-g2",
-		// "-g1",
-		// "-sASYNCIFY_REMOVE=\"encode_foo_encode_bar(*)\"",
-		//   "-gline-tables-only",
-		// "-sJSPI_EXPORTS=encode",
-		// "-fwasm-exceptions",
-		// "-fwasm-exceptions",
-		// "-sJSPI",
-		// "-sASYNCIFY_STACK_SIZE=2048",
-		// "-sJSPI_EXPORTS=__wasm_call_ctors",
-		// "-sASYNCIFY_ADVISE=1",
 		"-sASYNCIFY_ADD=\"heif_context_encode_image,green_thread_entry(*),gthread_cond_wait,gthread_join,gthread_cond_timedwait,*ThreadShim(*)\"",
-		// "-sASYNCIFY_ONLY=gthread_cond_wait,gthread_join,gthread_cond_timedwait",
-		// "-sASYNCIFY_DEBUG=1",
-		// "-sASYNCIFY_IGNORE_INDIRECT=1",
 		"-fno-exceptions",
 		"-sASYNCIFY=1",
 
@@ -441,9 +414,7 @@ function buildHEIC() {
 		// "-s", "ENVIRONMENT=web",
 		"-I vendor/heic_dec",
 		"-I vendor/libheif/libheif/api",
-		// "-fexceptions",
 		"-fno-exceptions",
-		// "-fwasm-exceptions",
 		"vendor/libde265/libde265/libde265.a",
 		"vendor/heic_dec/libheif/libheif.a",
 		"--emit-tsd heic-dec.d.ts",
@@ -466,12 +437,12 @@ function buildVVIC() {
 		stdio: "inherit",
 	}
 	);	
-	// If build failed, try to delete "use ccache" section in CMakeLists.txt
-	// removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
-	// removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
-	// removeRange("vendor/vvdec/")
+	// // If build failed, try to delete "use ccache" section in CMakeLists.txt
+	// // removeRange("vendor/vvdec/CMakeLists.txt", "\n# use ccache", "\n\n");
+	// // removeRange("vendor/vvdec/source/Lib/vvdec/wasm_bindings.cpp", "\n#ifdef __EMSCRIPTEN__", "  // __EMSCRIPTEN__\n\n");
+	// // removeRange("vendor/vvdec/")
 	emcmake({
-		outFile: "vendor/vvdec/lib/release-static/libvvdec.a",
+		outFile: `vendor/vvdec/lib/libvvdec.a`,
 		src: "vendor/vvdec",
 		exceptions: true,
 		options: {
@@ -480,23 +451,34 @@ function buildVVIC() {
 			VVDEC_LIBRARY_ONLY: 1,
 			BUILD_SHARED_LIBS: 0,
 			VVDEC_ENABLE_LINK_TIME_OPT: config.debug ? 0 : 1,
+			VVDEC_INSTALL_VVDECAPP: 0,
+			VVDEC_TOPLEVEL_OUTPUT_DIRS: 0,
+			VVDEC_ENABLE_WERROR: 0,
+			CMAKE_INSTALL_PREFIX: "vendor/vvic_build",
+
 		}
 	});
 
-	removeRange("vendor/vvenc/CMakeLists.txt", "\n# use ccache", "\n\n");
+	// // removeRange("vendor/vvenc/CMakeLists.txt", "\n# use ccache", "\n\n");
 	emcmake({
-		outFile: "vendor/vvenc/lib/release-static/libvvenc.a",
+		outFile: `vendor/vvenc/lib/libvvenc.a`,
 		src: "vendor/vvenc",
 		exceptions: true,
 		options: {
 			// Some instructions are not supported in WASM.
 			VVENC_ENABLE_X86_SIMD: 1,
 			BUILD_SHARED_LIBS: 0,
-			VVENC_ENABLE_INSTALL: 0,
+			VVENC_ENABLE_INSTALL: 1,
 			VVENC_ENABLE_THIRDPARTY_JSON: 0,
 			VVENC_ENABLE_ARM_SIMD: 1,
+			VVENC_LIBRARY_ONLY: 1,
+			VVENC_TOPLEVEL_OUTPUT_DIRS: 0,
+			VVENC_ENABLE_LINK_TIME_OPT: config.debug ? 0 : 1,
+			CMAKE_INSTALL_PREFIX: "vendor/vvic_build",
 		},
 	});
+	execFileSync("cmake", ["--install", "."], { cwd: "vendor/vvenc", stdio: "inherit" });
+	execFileSync("cmake", ["--install", "."], { cwd: "vendor/vvdec", stdio: "inherit" });
 	execFileSync(
 	"bash",
 	["-lc", `
@@ -510,11 +492,11 @@ function buildVVIC() {
 	}
 	);	
 	emcmake({
-		outFile: "vendor/libheif_vvic/libheif/libheif.a",
+		outFile: "vendor/libheif_vvdec/libheif/libheif.a",
 		src: "vendor/libheif",
-		dist: "vendor/libheif_vvic",
-		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H=",
-		exceptions: true,
+		dist: "vendor/libheif_vvdec",
+		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H= -Dthrow=",
+		exceptions: false,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
 			WITH_AOM_DECODER: 0,
@@ -526,31 +508,70 @@ function buildVVIC() {
 			ENABLE_MULTITHREADING_SUPPORT: 0,
 			BUILD_TESTING: 0,
 			BUILD_SHARED_LIBS: 0,
+			ENABLE_PLUGIN_LOADING: 0,
+			// LIBSHARPYUV_INCLUDE_DIR: "vendor/libwebp",
+			// LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
 
+			WITH_VVENC: 0,
+			WITH_VVDEC: 1,
+			WITH_X264:0,
+			vvenc_DIR: `${process.cwd()}/vendor/vvic_build/lib/cmake/vvenc`,
+			vvdec_DIR: `${process.cwd()}/vendor/vvic_build/lib/cmake/vvdec`,
+		},
+	});
+	emcmake({
+		outFile: "vendor/libheif_vvenc/libheif/libheif.a",
+		src: "vendor/libheif",
+		dist: "vendor/libheif_vvenc",
+		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H= -Dthrow=",
+		exceptions: false,
+		options: {
+			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
+			WITH_AOM_DECODER: 0,
+			WITH_AOM_ENCODER: 0,
+			WITH_X265: 0,
+			WITH_LIBDE265: 0,
+			WITH_EXAMPLES: 0,
+			WITH_GDK_PIXBUF: 0,
+			ENABLE_MULTITHREADING_SUPPORT: 0,
+			BUILD_TESTING: 0,
+			BUILD_SHARED_LIBS: 0,
+			ENABLE_PLUGIN_LOADING: 0,
 			LIBSHARPYUV_INCLUDE_DIR: "vendor/libwebp",
 			LIBSHARPYUV_LIBRARY: "vendor/libwebp/libsharpyuv.a",
 
-			// TODO: cannot find modules
 			WITH_VVENC: 1,
-			WITH_VVDEC: 1,
-
-			vvenc_DIR: "vendor/vvenc/cmake/install",
-			vvdec_DIR: "vendor/vvdec/cmake/install",
+			WITH_VVDEC: 0,
+			WITH_X264:0,
+			vvenc_DIR: `${process.cwd()}/vendor/vvic_build/lib/cmake/vvenc`,
+			vvdec_DIR: `${process.cwd()}/vendor/vvic_build/lib/cmake/vvdec`,
 		},
 	});
-
-	emcc("cpp/vvic.cpp", [
-		"-I vendor/libheif_vvic",
+	emcc("cpp/vvic_enc.cpp", [
+		"-I vendor/libheif_vvenc",
 		"-I vendor/libheif/libheif/api",
 		// "-pthread",
-		"-fexceptions",
+		// "-fexceptions",
 		"-fwasm-exceptions",
 		// "-sWASM_EXCEPTIONS=1",
-		"vendor/libheif_vvic/libheif/libheif.a",
-		"vendor/vvenc/lib/release-static/libvvenc.a",
-		"vendor/vvdec/lib/release-static/libvvdec.a",
+		"vendor/libheif_vvenc/libheif/libheif.a",
+		"vendor/vvic_build/lib/libvvenc.a",
+		// "vendor/vvic_build/lib/libvvdec.a",
 		"vendor/libwebp/libsharpyuv.a",
-		"--emit-tsd vvic.d.ts",
+		"--emit-tsd vvic-enc.d.ts",
+	]);
+	emcc("cpp/vvic_dec.cpp", [
+		"-I vendor/libheif_vvdec",
+		"-I vendor/libheif/libheif/api",
+		// "-pthread",
+		// "-fexceptions",
+		"-fwasm-exceptions",
+		// "-sWASM_EXCEPTIONS=1",
+		"vendor/libheif_vvdec/libheif/libheif.a",
+		// "vendor/vvic_build/lib/libvvenc.a",
+		"vendor/vvic_build/lib/libvvdec.a",
+		// "vendor/libwebp/libsharpyuv.a",
+		"--emit-tsd vvic-dnc.d.ts",
 	]);
 }
 
@@ -571,6 +592,6 @@ if (process.argv[2] === "update") {
 	buildWebP2();
 	buildHEIC();
 	buildPNGQuant();
-	// buildVVIC();
+	buildVVIC();
 	repositories.writeVersionsJSON();
 }

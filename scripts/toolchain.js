@@ -82,15 +82,19 @@ export function emcmake(settings) {
 	if (!config.rebuild && existsSync(outFile)) {
 		return;
 	}
-
+	let linkerFlags = "-lembind";
 	let cxxFlags = "-msimd128 -msse4.2 -mavx2";
 	if (config.wasm64) {
 		cxxFlags += " -sMEMORY64";
 	}
+	linkerFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
+	cxxFlags += " -sWASM_LEGACY_EXCEPTIONS=0";
 	if (!settings.exceptions) {
 		cxxFlags += " -fno-exceptions";
+		// linkerFlags += " -sDISABLE_EXCEPTION_CATCHING=1";
 	} else {
-		// cxxFlags += " -fwasm-exceptions";
+		cxxFlags += " -fwasm-exceptions";
+		linkerFlags += " -fwasm-exceptions";
 	}
 
 	if (flags) {
@@ -105,7 +109,7 @@ export function emcmake(settings) {
 		`-DCMAKE_C_FLAGS="${cxxFlags}"`,
 		`-DCMAKE_CXX_FLAGS="${cxxFlags} -std=c++23"`,
 		// "-DCMAKE_WARN_DEPRECATED=OFF",
-		"-DCMAKE_EXE_LINKER_FLAGS=-lembind",
+		`-DCMAKE_EXE_LINKER_FLAGS="${linkerFlags}"`,
 	];
 	if (config.cmakeBuilder) {
 		args.push("-G", `"${config.cmakeBuilder}"`);
@@ -131,7 +135,7 @@ export function emcc(input, sourceArguments) {
 		"TEXTDECODER=2",
 		"ALLOW_MEMORY_GROWTH=1",
 		"EXPORT_ES6=1",
-		"NODEJS_CATCH_REJECTION=0",
+		// "NODEJS_CATCH_REJECTION=0",
 		"WASM_LEGACY_EXCEPTIONS=0",
 		/*
 		 * Default 64KB is too small, causes OOM in some cases.
@@ -173,7 +177,12 @@ export function emcc(input, sourceArguments) {
 		options.push("ENVIRONMENT=node,web,worker");
 
 	} else {
-		args.push("-fno-exceptions");
+		if (sourceArguments.includes("-fwasm-exceptions") || sourceArguments.includes("-fexceptions")) { 
+
+		} else {
+			args.push("-fno-exceptions");
+		}
+		//
 		options.push("FILESYSTEM=0");
 		options.push("ENVIRONMENT=web,worker,node");
 
