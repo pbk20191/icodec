@@ -250,6 +250,7 @@ function buildHEICPartial(isEncode) {
 		outFile: `vendor/${typeName}/libheif/libheif.a`,
 		src: "vendor/libheif",
 		dist: "vendor/" + typeName,
+		rtti: true,
 		exceptions: false,
 		flags: "-Dthrow= -DLIBHEIF_BOX_EMSCRIPTEN_H=",
 		// flags: isEncode ? "-pthread" : "",
@@ -326,6 +327,7 @@ function buildHEIC() {
 		outFile: "vendor/x265/12bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/12bit",
+		rtti: true,
 		// flags: "-pthread",
 		flags: x265Flags,
 		options: {
@@ -339,6 +341,8 @@ function buildHEIC() {
 		outFile: "vendor/x265/10bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/10bit",
+				rtti: true,
+
 		// flags: "-pthread",
 				flags: x265Flags,
 
@@ -352,6 +356,8 @@ function buildHEIC() {
 		outFile: "vendor/x265/8bit/libx265.a",
 		src: "vendor/x265/source",
 		dist: "vendor/x265/8bit",
+				rtti: true,
+
 		// flags: "-pthread",
 				flags: x265Flags,
 
@@ -445,6 +451,7 @@ function buildVVIC() {
 		outFile: `vendor/vvdec/lib/libvvdec.a`,
 		src: "vendor/vvdec",
 		exceptions: true,
+		rtti: true,
 		options: {
 			VVDEC_ENABLE_X86_SIMD:1,
 			VVDEC_ENABLE_ARM_SIMD: 1,
@@ -464,6 +471,7 @@ function buildVVIC() {
 		outFile: `vendor/vvenc/lib/libvvenc.a`,
 		src: "vendor/vvenc",
 		exceptions: true,
+		rtti: true,
 		options: {
 			// Some instructions are not supported in WASM.
 			VVENC_ENABLE_X86_SIMD: 1,
@@ -496,6 +504,7 @@ function buildVVIC() {
 		src: "vendor/libheif",
 		dist: "vendor/libheif_vvdec",
 		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H= -Dthrow=",
+		rtti: true,
 		exceptions: false,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,
@@ -524,6 +533,7 @@ function buildVVIC() {
 		src: "vendor/libheif",
 		dist: "vendor/libheif_vvenc",
 		flags: "-DLIBHEIF_BOX_EMSCRIPTEN_H= -Dthrow=",
+		rtti: true,
 		exceptions: false,
 		options: {
 			CMAKE_DISABLE_FIND_PACKAGE_Doxygen: 1,

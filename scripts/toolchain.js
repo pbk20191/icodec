@@ -96,7 +96,9 @@ export function emcmake(settings) {
 		cxxFlags += " -fwasm-exceptions";
 		linkerFlags += " -fwasm-exceptions";
 	}
-
+	if (!settings.rtti) {
+		cxxFlags += " -fno-rtti";
+	}
 	if (flags) {
 		cxxFlags += " ";
 		cxxFlags += flags;
@@ -135,6 +137,7 @@ export function emcc(input, sourceArguments) {
 		"TEXTDECODER=2",
 		"ALLOW_MEMORY_GROWTH=1",
 		"EXPORT_ES6=1",
+		"MODULARIZE=1",
 		// "NODEJS_CATCH_REJECTION=0",
 		// "WASM_LEGACY_EXCEPTIONS=0",
 		/*
@@ -142,6 +145,10 @@ export function emcc(input, sourceArguments) {
 		 * libwebp sets it to 5MB, but 2MB seems enough.
 		 */
 		"STACK_SIZE=2MB",
+		"DYNAMIC_EXECUTION=1",
+		"USE_CLOSURE_COMPILER=1",
+		"EMBIND_AOT=1",
+		"EXPORTED_RUNTIME_METHODS=HEAP8",
 	]
 	const args = [
 		config.debug ? "-g" : "-O3",
@@ -153,8 +160,8 @@ export function emcc(input, sourceArguments) {
 		"-msimd128",
 		"-flto",
 		"-std=c++23",
-
-
+		"-fno-rtti",
+		"-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
 		// Save ~69KB, but may affect performance.
 		// "-s", "MALLOC=emmalloc",
 
