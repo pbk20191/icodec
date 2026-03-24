@@ -49,6 +49,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run test-convert
+      - run: npm run test-leak
+      - run: npm run test-lossless
     #   - run: npm publish
         # env:
           # NPM_CONFIG_PROVENANCE: true
