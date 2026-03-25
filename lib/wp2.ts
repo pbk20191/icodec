@@ -73,6 +73,7 @@ export interface Options {
 
 	// Experimental features
 	useRandomMatrix?: boolean;
+	lossless?: boolean;
 }
 
 export const defaultOptions: Required<Options> = {
@@ -85,6 +86,7 @@ export const defaultOptions: Required<Options> = {
 	cspType: Csp.YCoCg,
 	errorDiffusion: 0,
 	useRandomMatrix: false,
+	lossless: false,
 };
 
 export const bitDepth = [8];

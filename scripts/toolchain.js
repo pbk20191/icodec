@@ -145,7 +145,7 @@ export function emcc(input, sourceArguments) {
 		 * libwebp sets it to 5MB, but 2MB seems enough.
 		 */
 		"STACK_SIZE=2MB",
-		"DYNAMIC_EXECUTION=1",
+		"DYNAMIC_EXECUTION=0",
 		"USE_CLOSURE_COMPILER=1",
 		"EMBIND_AOT=1",
 		"EXPORTED_RUNTIME_METHODS=HEAP8",

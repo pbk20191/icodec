@@ -219,6 +219,8 @@ export function buildWebP2() {
 		outFile: "vendor/wp2_build/libwebp2.a",
 		src: "vendor/libwebp2",
 		dist: "vendor/wp2_build",
+		rtti: false,
+		flags: "-DEMSCRIPTEN=" ,
 		options: {
 			WP2_BUILD_EXAMPLES: 0,
 			WP2_BUILD_TESTS: 0,

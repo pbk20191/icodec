@@ -22,5 +22,5 @@ test("WebP", testLossless.bind(webp, { lossless: true }));
 test("PNG", testLossless.bind(png, { quantize: false }));
 test("QOI", testLossless.bind(qoi));
 test("JXL", testLossless.bind(jxl, { lossless: true }));
-test("WebP2", testLossless.bind(wp2, { quality: 100 }));
+test("WebP2", testLossless.bind(wp2, { lossless: true }));
 test("HEIC", testLossless.bind(heic, { lossless: true }));

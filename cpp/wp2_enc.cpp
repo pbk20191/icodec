@@ -18,6 +18,7 @@ struct WP2Options
 	int csp_type;
 	int error_diffusion;
 	bool use_random_matrix;
+	bool lossless;
 };
 
 val encode(std::string pixels, uint32_t width, uint32_t height, WP2Options options)
@@ -38,19 +39,27 @@ val encode(std::string pixels, uint32_t width, uint32_t height, WP2Options optio
 	// Must enable `keep_unmultiplied` and modify the format for exact lossless.
 	// https://chromium.googlesource.com/codecs/libwebp2/+/b65d168d3b2b8f8ec849134da2c3a5f034f1eb42/examples/cwp2.cc#868
 	WP2SampleFormat format = WP2_Argb_32;
-	if (options.quality == 100 && options.alpha_quality == 100)
+	if (options.lossless)
 	{
-		format = WP2_ARGB_32;
-		config.keep_unmultiplied = true;
+		uint8_t* encoded_head = nullptr;
+		size_t encoded_size = 0;
+		auto s = WP2EncodeLosslessRgba8(width, height, rgba, CHANNELS_RGBA * width, config.effort, encoded_head, encoded_size);
+		CHECK_STATUS(static_cast<WP2Status>(s));
+		val t = toUint8Array(encoded_head, encoded_size);
+		WP2Release(encoded_head);
+		return t;
+	} else {
+		auto src = WP2::ArgbBuffer(format);
+		CHECK_STATUS(src.Import(WP2_RGBA_32, width, height, rgba, CHANNELS_RGBA * width));
+
+		WP2::MemoryWriter memory_writer;
+		CHECK_STATUS(WP2::Encode(src, &memory_writer, config));
+
+		return toUint8Array(memory_writer.mem_, memory_writer.size_);
+
 	}
 
-	auto src = WP2::ArgbBuffer(format);
-	CHECK_STATUS(src.Import(WP2_RGBA_32, width, height, rgba, CHANNELS_RGBA * width));
 
-	WP2::MemoryWriter memory_writer;
-	CHECK_STATUS(WP2::Encode(src, &memory_writer, config));
-
-	return toUint8Array(memory_writer.mem_, memory_writer.size_);
 }
 
 EMSCRIPTEN_BINDINGS(icodec_module_WebP2)
@@ -66,5 +75,6 @@ EMSCRIPTEN_BINDINGS(icodec_module_WebP2)
 		.field("sns", &WP2Options::sns)
 		.field("cspType", &WP2Options::csp_type)
 		.field("errorDiffusion", &WP2Options::error_diffusion)
-		.field("useRandomMatrix", &WP2Options::use_random_matrix);
+		.field("useRandomMatrix", &WP2Options::use_random_matrix)
+		.field("lossless", &WP2Options::lossless);
 }
