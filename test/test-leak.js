@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { avif, heic, jpeg, jxl, png, qoi, webp, wp2 } from "../lib/node.js";
+import { avif, heic, jpeg, jxl, png, qoi, webp, wp2,vvic } from "../lib/node.js";
 import { getRawPixels, getSnapshot } from "./fixtures.js";
 
 // Run functions repeatedly, check if memory usage grows.
@@ -52,6 +52,8 @@ describe("encode", () => {
 	test("AVIF", testEncodeLeak.bind(avif));
 	test("JXL", testEncodeLeak.bind(jxl));
 	test("WebP2", testEncodeLeak.bind(wp2));
+	test("HEIC", testEncodeLeak.bind(heic));
+	// test("VVIC", testEncodeLeak.bind(vvic));
 });
 
 describe("decode", () => {
@@ -63,4 +65,5 @@ describe("decode", () => {
 	test("AVIF", testDecodeLeak.bind(avif));
 	test("JXL", testDecodeLeak.bind(jxl));
 	test("WebP2", testDecodeLeak.bind(wp2));
+	test("VVIC", testDecodeLeak.bind(vvic));
 });

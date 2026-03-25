@@ -221,14 +221,17 @@ export function wasmPack(directory) {
 	// https://github.com/rustwasm/wasm-pack/blob/62ab39cf82ec4d358c1f08f348cd0dc44768f412/src/command/build.rs#L116
 	const args = [
 		"build", directory,
-		"--no-typescript",
+		// "--no-typescript",
 		"--no-pack",
 		"--reference-types",
 		"--weak-refs",
 		"--target", "web",
+		// "--target", "nodejs",
 	];
 	if (config.debug) {
 		args.push("--dev");
+	} else {
+		args.push("--release");
 	}
 	execFileSync("wasm-pack", args, { stdio: "inherit", env });
 }
