@@ -12,7 +12,7 @@
 	"type": "module",
 	"scripts": {
 		"wasm": "node scripts/build.js",
-		"types": "tsc -p tsconfig.json --emitDeclarationOnly && tsc -p tsconfig.json",
+		"types": "tsc -p tsconfig.json",
 		"build": "npm run wasm && npm run types",
 		"test-convert": "tsx --test test/test-convert.js",
 		"test-leak": "tsx --test test/test-leak.js",

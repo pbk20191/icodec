@@ -1,6 +1,6 @@
 {
 	"include": ["lib/*.ts", "dist/*.js"],
-	"exclude": ["dist"],
+	"exclude": ["dist", "dist/*.d.ts"],
 	"compilerOptions": {
 		"target": "ESNext",
 		"module": "NodeNext",
