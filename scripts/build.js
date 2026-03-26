@@ -78,6 +78,7 @@ export function buildMozJPEG() {
 		"-I vendor/mozjpeg",
 		"vendor/mozjpeg/libjpeg.a",
 		"vendor/mozjpeg/rdswitch.o",
+		"--emit-tsd mozjpeg.d.ts",
 	]);
 }
 
@@ -89,7 +90,7 @@ export function buildPNGQuant() {
 }
 
 export function buildQOI() {
-	emcc("cpp/qoi.cpp", ["-I vendor/qoi"]);
+	emcc("cpp/qoi.cpp", ["-I vendor/qoi", "--emit-tsd qoi.d.ts"]);
 }
 
 export function buildWebP() {
@@ -583,7 +584,7 @@ function buildVVIC() {
 		// "vendor/vvic_build/lib/libvvenc.a",
 		"vendor/vvic_build/lib/libvvdec.a",
 		// "vendor/libwebp/libsharpyuv.a",
-		"--emit-tsd vvic-dnc.d.ts",
+		"--emit-tsd vvic-dec.d.ts",
 	]);
 }
 

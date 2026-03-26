@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { avif, heic, jpeg, jxl, png, qoi, webp, wp2,vvic } from "../lib/node.js";
-import { getRawPixels, getSnapshot } from "./fixtures.js";
+import { avif, heic, jpeg, jxl, png, qoi, webp, wp2,vvic } from "../lib/node";
+import { getRawPixels, getSnapshot } from "./fixtures";
 
 // Run functions repeatedly, check if memory usage grows.
 const runs = 60;

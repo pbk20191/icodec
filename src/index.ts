@@ -1,16 +1,16 @@
-import { ImageDataLike, PureImageData, toBitDepth, WasmSource } from "./common.js";
+import { ImageDataLike, PureImageData, toBitDepth, WasmSource } from "./common.ts";
 
 export { ImageDataLike, toBitDepth };
 
-export * as avif from "./avif.js";
-export * as png from "./png.js";
-export * as jpeg from "./jpeg.js";
-export * as jxl from "./jxl.js";
-export * as webp from "./webp.js";
-export * as heic from "./heic.js";
-export * as qoi from "./qoi.js";
-export * as wp2 from "./wp2.js";
-export * as vvic from "./vvic.js";
+export * as avif from "./avif.ts";
+export * as png from "./png.ts";
+export * as jpeg from "./jpeg.ts";
+export * as jxl from "./jxl.ts";
+export * as webp from "./webp.ts";
+export * as heic from "./heic.ts";
+export * as qoi from "./qoi.ts";
+export * as wp2 from "./wp2.ts";
+export * as vvic from "./vvic.ts";
 
 declare global {
 	// eslint-disable-next-line no-var

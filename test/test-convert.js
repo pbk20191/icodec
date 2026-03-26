@@ -1,8 +1,8 @@
 import { describe, test } from "node:test";
 import * as assert from "node:assert";
 import sharp from "sharp";
-import { avif, heic, jpeg, jxl, png, qoi, webp, wp2, vvic } from "../lib/node.js";
-import { assertSimilar, generateTestImage, getRawPixels, getSnapshot, makeOpaque, updateSnapshot } from "./fixtures.js";
+import { avif, heic, jpeg, jxl, png, qoi, webp, wp2, vvic } from "../lib/node";
+import { assertSimilar, generateTestImage, getRawPixels, getSnapshot, makeOpaque, updateSnapshot } from "./fixtures";
 
 async function testEncode(image, options) {
 	const { loadEncoder, encode } = this;

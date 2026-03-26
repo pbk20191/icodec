@@ -1,3 +1,6 @@
+/// <reference path="../types/wasm_type.d.ts" preserve="true"/>
+/// <reference types="emscripten" preserve="true" />
+
 /**
  * Parameter type of `loadEncoder()` and `loadDecoder()`.
  *
@@ -7,10 +10,15 @@
 export type WasmSource = string | BufferSource;
 export type EnumValue<E> = E[Extract<keyof E, string>];
 
-export function loadES(factory: any, source?: WasmSource) {
-	return typeof source === "string"
-		? factory({ locateFile: () => source })
-		: factory({ wasmBinary: source });
+export function loadES<T extends EmscriptenModule>(factory: EmscriptenModuleFactory<T>, source?: WasmSource) {
+	if (typeof source === "string") {
+		const locateFile = (url: string, scriptDirectory: string) => source;
+		return factory({ locateFile } as any);
+	}
+	if (source === undefined) {
+		return factory();
+	}
+	return factory({ wasmBinary: source as ArrayBuffer } as any);
 }
 
 export interface ImageDataLike {

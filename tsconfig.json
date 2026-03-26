@@ -1,15 +1,17 @@
 {
-	"include": ["lib/*.ts", "dist/*.js"],
-	"exclude": ["dist", "dist/*.d.ts"],
+	"include": ["src/*.ts", "dist",  "types"],
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"outDir": "lib",
+		"rootDir": "src",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"types": ["node", "emscripten"],
 		"strict": true,
 		"declaration": true,
 		"resolveJsonModule": true,
-		"allowJs": true,
 		"skipLibCheck": true,
-		"useUnknownInCatchVariables": false
+		"useUnknownInCatchVariables": false,
+		"rewriteRelativeImportExtensions": true
 	}
 }

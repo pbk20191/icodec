@@ -1,6 +1,6 @@
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
-import wasmFactoryEnc from "../dist/wp2-enc.js";
-import wasmFactoryDec from "../dist/wp2-dec.js";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import wasmFactoryEnc from "../dist/wp2-enc.ts";
+import wasmFactoryDec from "../dist/wp2-dec.ts";
 
 export enum UVMode {
 	UVAdapt = 0,

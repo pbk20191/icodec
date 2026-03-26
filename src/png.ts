@@ -1,5 +1,5 @@
-import wasmFactory, { optimize, png_to_rgba, quantize } from "../dist/pngquant.js";
-import { ImageDataLike, toBitDepth, WasmSource } from "./common.js";
+import wasmFactory, { optimize, png_to_rgba, quantize } from "../dist/pngquant.ts";
+import { ImageDataLike, toBitDepth, WasmSource } from "./common.ts";
 
 export interface QuantizeOptions {
 	/**

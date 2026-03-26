@@ -1,6 +1,6 @@
-import wasmFactoryEnc, { MainModule as EncoderModule } from "../dist/avif-enc.js";
-import wasmFactoryDec, { MainModule as DecoderModule, EmbindString } from "../dist/avif-dec.js";
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
+import wasmFactoryEnc, { MainModule as EncoderModule } from "../dist/avif-enc.ts";
+import wasmFactoryDec, { MainModule as DecoderModule, EmbindString } from "../dist/avif-dec.ts";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export enum Subsampling {
 	YUV444 = 1,
@@ -117,6 +117,7 @@ export const bitDepth = [8, 10, 12, 16];
 
 let encoderWASM: EncoderModule|undefined;
 let decoderWASM: DecoderModule|undefined;
+
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);

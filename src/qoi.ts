@@ -1,5 +1,5 @@
-import wasmFactory from "../dist/qoi.js";
-import { check, ImageDataLike, loadES, WasmSource } from "./common.js";
+import wasmFactory, { EmbindString, MainModule } from "../dist/qoi.ts";
+import { check, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 /**
  * QOI encoder does not have options, it's always lossless.
@@ -12,7 +12,7 @@ export const bitDepth = [8];
 export const mimeType = "image/qoi";
 export const extension = "qoi";
 
-let codecWASM: any;
+let codecWASM: MainModule | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return codecWASM = await loadES(wasmFactory, input);
@@ -22,14 +22,16 @@ export const loadDecoder = loadEncoder;
 
 export function encode(image: ImageDataLike) {
 	const { data, width, height } = image;
-	const result = codecWASM.encode(data, width, height, undefined);
+	const result = codecWASM!!.encode(data, width, height, undefined);
 	return check<Uint8Array>(result, "QOI Encode");
 }
 
 export function decode(input: BufferSource) {
-	return check<ImageData>(codecWASM.decode(input), "QOI Decode");
+	return check<ImageData>(codecWASM!!.decode(input as EmbindString), "QOI Decode");
 }
 
-export function unloadCoder() {
+export function unloadDecoder() {
 	codecWASM = undefined;
 }
+
+export const unloadEncoder = unloadDecoder;

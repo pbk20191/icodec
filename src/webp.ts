@@ -1,6 +1,6 @@
-import wasmFactoryEnc from "../dist/webp-enc.js";
-import wasmFactoryDec from "../dist/webp-dec.js";
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.js";
+import wasmFactoryEnc, { MainModule as EncoderModule, WebPConfig} from "../dist/webp-enc.ts";
+import wasmFactoryDec, {MainModule as DecoderModule, EmbindString} from "../dist/webp-dec.ts";
+import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export enum Preprocess {
 	None,
@@ -281,8 +281,8 @@ export const bitDepth = [8];
 export const mimeType = "image/webp";
 export const extension = "webp";
 
-let encoderWASM: any;
-let decoderWASM: any;
+let encoderWASM: EncoderModule | undefined;
+let decoderWASM: DecoderModule | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
@@ -296,12 +296,12 @@ export function encode(image: ImageDataLike, options?: Options) {
 	return encodeES("Webp Encode", encoderWASM, defaultOptions, image, options);
 }
 
-export function preset(config:Options, preset: EnumValue<typeof WebPPreset>): Options|null {
-	return encoderWASM.WebPConfigPreset( config,preset);
+export function preset(config:Options, preset: EnumValue<typeof WebPPreset>) {
+	return encoderWASM!!.WebPConfigPreset( config as unknown as WebPConfig,preset);
 }
 
 export function decode(input: BufferSource) {
-	return check<ImageData>(decoderWASM.decode(input), "Webp Decode");
+	return check<ImageData>(decoderWASM!!.decode(input as EmbindString), "Webp Decode");
 }
 
 export function unloadDecoder() {

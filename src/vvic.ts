@@ -1,6 +1,6 @@
-import wasmFactoryEnc from "../dist/vvic-enc.js";
-import wasmFactoryDec from "../dist/vvic-dec.js";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.js";
+import wasmFactoryEnc from "../dist/vvic-enc.ts";
+import wasmFactoryDec from "../dist/vvic-dec.ts";
+import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export interface Options {
     /**
