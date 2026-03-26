@@ -19,10 +19,8 @@ pnpm-debug.log*
 *.sw?
 
 # Build outputs
-/lib/*.js
-/lib/*.d.ts
-/lib/*.map
 /dist
+/lib
 /coverage
 /rust/pkg
 /rust/target
