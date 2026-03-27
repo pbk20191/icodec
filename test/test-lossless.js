@@ -1,6 +1,6 @@
 import { test } from "node:test";
-import { avif, jxl, png, qoi, webp, wp2, heic, vvic } from "../lib/node";
-import { assertSimilar, getRawPixels } from "./fixtures";
+import { avif, jxl, png, qoi, webp, wp2, heic, vvic } from "../lib/node.js";
+import { assertSimilar, getRawPixels } from "./fixtures.js";
 
 const image = getRawPixels("alpha");
 

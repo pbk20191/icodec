@@ -70,7 +70,7 @@ export default defineSuite({
 
 			scene.bench("icodec", () => decode(input));
 
-			if ((name in instance && name !== "wp2") || name === "heic") {
+			if (name in instance  || name === "heic") {
 				scene.benchAsync("Sharp", () => instance.raw().toBuffer());
 			}
 		} else {

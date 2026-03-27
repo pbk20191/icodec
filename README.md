@@ -256,62 +256,65 @@ This benchmark ignores extra code size introduced by icodec, which in practice n
 
 Decode on Edge browser.
 
-| No. |   Name | codec |        time |     time.SD |
-| --: | -----: | ----: | ----------: | ----------: |
-|   0 | icodec |  avif | 1,727.54 us |    15.12 us |
-|   1 |     2d |  avif |   493.56 us |     2.58 us |
-|   2 |  WebGL |  avif |   876.40 us |     9.62 us |
-|   3 | icodec |  heic |     1.20 ms |     7.51 us |
-|   4 | icodec |  jpeg |   434.98 us |     1.51 us |
-|   5 |     2d |  jpeg |   209.49 us |     2.66 us |
-|   6 |  WebGL |  jpeg |   605.33 us |     1.87 us |
-|   7 | icodec |   jxl |     2.15 ms |     5.53 us |
-|   8 | icodec |   png |   174.09 us |   324.80 ns |
-|   9 |     2d |   png |   170.82 us | 1,087.79 ns |
-|  10 |  WebGL |   png |   549.13 us | 2,708.95 ns |
-|  11 | icodec |   qoi |   194.77 us |   955.73 ns |
-|  12 | icodec |  webp |   390.09 us |     3.69 us |
-|  13 |     2d |  webp |   361.30 us |     4.71 us |
-|  14 |  WebGL |  webp |   744.59 us |     4.92 us |
-|  15 | icodec |   wp2 |     1.57 ms |    14.71 us |
+| No. |   Name | codec |        time |   time.SD |
+| --: | -----: | ----: | ----------: | --------: |
+|   0 | icodec |  avif | 1,710.60 us |  21.93 us |
+|   1 |     2d |  avif |   493.69 us |   1.65 us |
+|   2 |  WebGL |  avif |   894.87 us |  10.13 us |
+|   3 | icodec |  heic |     1.17 ms |  14.51 us |
+|   4 | icodec |  jpeg |     2.05 ms | 628.38 us |
+|   5 |     2d |  jpeg |     1.56 ms | 110.55 us |
+|   6 |  WebGL |  jpeg |     2.63 ms | 707.70 us |
+|   7 | icodec |   jxl |    13.09 ms | 955.22 us |
+|   8 | icodec |   png |   821.78 us |  66.81 us |
+|   9 |     2d |   png | 1,199.33 us |  44.77 us |
+|  10 |  WebGL |   png | 1,946.85 us | 442.79 us |
+|  11 | icodec |   qoi |   892.97 us |  31.51 us |
+|  12 | icodec |  vvic |    11.16 ms | 292.62 us |
+|  13 | icodec |  webp |     2.55 ms | 164.52 us |
+|  14 |     2d |  webp |     2.20 ms | 176.67 us |
+|  15 |  WebGL |  webp |     2.51 ms | 451.14 us |
+|  16 | icodec |   wp2 |     8.72 ms | 174.01 us |
 
 Decode on Node, vs [Sharp](https://github.com/lovell/sharp).
 
-| No. |   Name | codec |      time |     time.SD |
-| --: | -----: | ----: | --------: | ----------: |
-|   0 | icodec |  avif |   1.73 ms |     2.54 us |
-|   1 |  Sharp |  avif |   1.15 ms |     4.00 us |
-|   2 | icodec |  heic |   1.31 ms |    46.66 us |
-|   3 |  Sharp |  heic |   2.13 ms |    69.81 us |
-|   4 | icodec |  jpeg | 440.56 us |     4.11 us |
-|   5 |  Sharp |  jpeg | 486.12 us |     1.39 us |
-|   6 | icodec |   jxl |   2.11 ms |     3.01 us |
-|   7 |  Sharp |   jxl |   3.78 ms |    14.06 us |
-|   8 | icodec |   png | 156.59 us |    51.68 ns |
-|   9 |  Sharp |   png | 420.68 us |   810.94 ns |
-|  10 | icodec |   qoi | 177.98 us |   222.92 ns |
-|  11 | icodec |  webp | 368.54 us | 1,409.96 ns |
-|  12 |  Sharp |  webp | 936.37 us |   726.44 ns |
-|  13 | icodec |   wp2 |   1.51 ms |    13.38 us |
+| No. |   Name | codec |      time |  time.SD |
+| --: | -----: | ----: | --------: | -------: |
+|   0 | icodec |  avif |   1.68 ms | 20.70 us |
+|   1 |  Sharp |  avif |   1.16 ms | 33.35 us |
+|   2 | icodec |  heic |   1.16 ms | 18.64 us |
+|   3 |  Sharp |  heic |   1.90 ms | 26.32 us |
+|   4 | icodec |  jpeg | 435.98 us |  8.20 us |
+|   5 |  Sharp |  jpeg | 472.40 us |  9.68 us |
+|   6 | icodec |   jxl |   2.07 ms | 21.80 us |
+|   7 |  Sharp |   jxl |   3.84 ms | 64.29 us |
+|   8 | icodec |   png | 154.72 us |  1.60 us |
+|   9 |  Sharp |   png | 419.32 us |  2.15 us |
+|  10 | icodec |   qoi | 181.06 us |  4.86 us |
+|  11 | icodec |  vvic |   1.53 ms | 17.61 us |
+|  12 | icodec |  webp | 361.30 us |  6.68 us |
+|  13 |  Sharp |  webp | 940.68 us |  7.43 us |
+|  14 | icodec |   wp2 |   1.46 ms | 13.45 us |
 
 Encode on Node, vs [Sharp](https://github.com/lovell/sharp). Note that icodec and Sharp do not use the same code, so the output images are not exactly equal.
 
-| No. |   Name | codec |        time |   time.SD |
-|----:|-------:|------:|------------:|----------:|
-|   0 | icodec |  avif |    35.65 ms | 109.92 us |
-|   1 |  Sharp |  avif |    42.73 ms |  99.32 us |
-|   2 | icodec |  heic |    94.91 ms | 108.29 us |
-|   3 |  Sharp |  heic |    41.59 ms | 120.28 us |
-|   4 | icodec |  jpeg | 7,038.84 us |  34.34 us |
-|   5 |  Sharp |  jpeg |   553.21 us |   6.24 us |
-|   6 | icodec |   jxl |    28.65 ms |  87.20 us |
-|   7 |  Sharp |   jxl |    30.08 ms | 191.50 us |
-|   8 | icodec |   png |    50.99 ms | 295.76 us |
-|   9 |  Sharp |   png |     2.37 ms |  41.31 us |
-|  10 | icodec |   qoi |    99.50 us | 824.39 ns |
-|  11 | icodec |  webp |     3.82 ms |  39.77 us |
-|  12 |  Sharp |  webp |     2.81 ms |  52.25 us |
-|  13 | icodec |   wp2 |    56.29 ms | 378.50 us |
+| No. |   Name | codec |        time |     time.SD |
+| --: | -----: | ----: | ----------: | ----------: |
+|   0 | icodec |  avif |    33.97 ms |   552.34 us |
+|   1 |  Sharp |  avif |    41.82 ms | 1,494.94 us |
+|   2 | icodec |  heic |    92.53 ms |     2.80 ms |
+|   3 |  Sharp |  heic |    40.57 ms |     1.06 ms |
+|   4 | icodec |  jpeg | 7,742.53 us |   861.64 us |
+|   5 |  Sharp |  jpeg |   572.19 us |    15.27 us |
+|   6 | icodec |   jxl |    26.89 ms |   400.82 us |
+|   7 |  Sharp |   jxl |    28.50 ms |   268.92 us |
+|   8 | icodec |   png |    47.40 ms |   284.28 us |
+|   9 |  Sharp |   png |     2.25 ms |    16.63 us |
+|  10 | icodec |   qoi |    92.90 us |     1.71 us |
+|  11 | icodec |  vvic |      1.24 s |    46.07 ms |
+|  12 | icodec |  webp |     3.87 ms |   212.54 us |
+|  13 |  Sharp |  webp |     2.69 ms |    44.19 us |
+|  14 | icodec |   wp2 |    54.05 ms |   845.42 us |
 
 # Contribute
 

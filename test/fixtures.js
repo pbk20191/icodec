@@ -4,7 +4,7 @@ import { once } from "node:events";
 import { getCached } from "@kaciras/utilities/browser";
 import sharp from "sharp";
 import pixelMatch from "pixelmatch";
-import { toBitDepth } from "../lib/common";
+import { toBitDepth } from "../lib/common.js";
 
 const directory = `${import.meta.dirname}/snapshot`;
 const cache = new Map();
