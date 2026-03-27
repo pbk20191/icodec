@@ -1,6 +1,6 @@
 import wasmFactoryEnc from "../dist/jxl-enc.ts";
-import wasmFactoryDec from "../dist/jxl-dec.ts";
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import wasmFactoryDec, { EmbindString } from "../dist/jxl-dec.ts";
+import { AsyncFactoryResult, check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 // Tristate bool value, `Default` means encoder chooses.
 export enum Override { Default = -1, False, True}
@@ -217,8 +217,8 @@ export const mimeType = "image/jxl";
 export const extension = "jxl";
 export const bitDepth = [8, 9, 10, 11, 12, 13, 14, 15, 16];
 
-let encoderWASM: any;
-let decoderWASM: any;
+let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
@@ -233,7 +233,7 @@ export function encode(image: ImageDataLike, options?: Options) {
 }
 
 export function decode(input: BufferSource) {
-	return check<ImageData>(decoderWASM.decode(input), "JXL Decode");
+	return check<ImageData>(decoderWASM!!.decode(input as EmbindString), "JXL Decode");
 }
 
 export function unloadDecoder() {

@@ -9,7 +9,9 @@
  */
 export type WasmSource = string | BufferSource;
 export type EnumValue<E> = E[Extract<keyof E, string>];
-
+export type AsyncFactoryResult<T extends (...args: any[]) => any> =
+  Awaited<ReturnType<T>>;
+  
 export function loadES<T extends EmscriptenModule>(factory: EmscriptenModuleFactory<T>, source?: WasmSource) {
 	if (typeof source === "string") {
 		const locateFile = (url: string, scriptDirectory: string) => source;

@@ -1,5 +1,5 @@
-import wasmFactory, { EmbindString, MainModule } from "../dist/qoi.ts";
-import { check, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import wasmFactory, { EmbindString } from "../dist/qoi.ts";
+import { AsyncFactoryResult, check, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 /**
  * QOI encoder does not have options, it's always lossless.
@@ -12,7 +12,7 @@ export const bitDepth = [8];
 export const mimeType = "image/qoi";
 export const extension = "qoi";
 
-let codecWASM: MainModule | undefined;
+let codecWASM: AsyncFactoryResult<typeof wasmFactory> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return codecWASM = await loadES(wasmFactory, input);

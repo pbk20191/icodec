@@ -1,6 +1,6 @@
 import wasmFactoryEnc from "../dist/vvic-enc.ts";
-import wasmFactoryDec from "../dist/vvic-dec.ts";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import wasmFactoryDec, { EmbindString } from "../dist/vvic-dec.ts";
+import { AsyncFactoryResult, check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export interface Options {
     /**
@@ -22,8 +22,8 @@ export const defaultOptions: Required<Options> = {
     quality: 75,
 };
 
-let encoderWASM: any;
-let decoderWASM: any;
+let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
 
 export const mimeType = "image/vvic";
 export const extension = "vvic";
@@ -43,7 +43,7 @@ export function encode(image: ImageDataLike, options?: Options) {
 
 
 export function decode(input: BufferSource) {
-    return check<ImageData>(decoderWASM.decode(input), "VVIC Decode");
+    return check<ImageData>(decoderWASM!!.decode(input as EmbindString), "VVIC Decode");
 }
 
 export function unloadDecoder() {

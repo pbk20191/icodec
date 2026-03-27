@@ -115,8 +115,9 @@ export const mimeType = "image/avif";
 export const extension = "avif";
 export const bitDepth = [8, 10, 12, 16];
 
-let encoderWASM: EncoderModule|undefined;
-let decoderWASM: DecoderModule|undefined;
+let encoderWASM: Awaited<ReturnType<typeof wasmFactoryEnc>> | undefined;
+let decoderWASM: Awaited<ReturnType<typeof wasmFactoryDec>> | undefined;
+
 
 
 export async function loadEncoder(input?: WasmSource) {

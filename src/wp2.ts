@@ -1,6 +1,6 @@
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import { AsyncFactoryResult, check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 import wasmFactoryEnc from "../dist/wp2-enc.ts";
-import wasmFactoryDec from "../dist/wp2-dec.ts";
+import wasmFactoryDec, { EmbindString } from "../dist/wp2-dec.ts";
 
 export enum UVMode {
 	UVAdapt = 0,
@@ -95,8 +95,8 @@ export const bitDepth = [8];
 export const mimeType = "image/webp2";
 export const extension = "wp2";
 
-let encoderWASM: any;
-let decoderWASM: any;
+let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
@@ -111,7 +111,7 @@ export function encode(image: ImageDataLike, options?: Options) {
 }
 
 export function decode(input: BufferSource) {
-	return check<ImageData>(decoderWASM.decode(input), "Webp2 Decode");
+	return check<ImageData>(decoderWASM!!.decode(input as EmbindString), "Webp2 Decode");
 }
 
 export function unloadDecoder() {

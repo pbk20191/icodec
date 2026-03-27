@@ -1,6 +1,6 @@
-import wasmFactoryEnc, { MainModule } from "../dist/heic-enc.ts";
-import wasmFactoryDec, { MainModule as DecoderModule, EmbindString } from "../dist/heic-dec.ts";
-import { check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import wasmFactoryEnc from "../dist/heic-enc.ts";
+import wasmFactoryDec, { EmbindString } from "../dist/heic-dec.ts";
+import { AsyncFactoryResult, check, encodeES, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export const Presets = ["ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow", "placebo"] as const;
 
@@ -88,8 +88,9 @@ export const mimeType = "image/heic";
 export const extension = "heic";
 export const bitDepth = [8, 10, 12];
 
-let encoderWASM: MainModule | undefined;
-let decoderWASM: DecoderModule | undefined;
+let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
+
 
 export async function loadEncoder(input?: WasmSource) {
 	return encoderWASM ??= await loadES(wasmFactoryEnc, input);

@@ -15,19 +15,20 @@ import * as qoiRaw from "./qoi.ts";
 import * as wp2Raw from "./wp2.ts";
 import * as vvicRaw from "./vvic.ts";
 
-type NodeCodecModule = {
-	loadEncoder(input?: WasmSource): Promise<EmscriptenModule>;
-	loadDecoder(input?: WasmSource): Promise<EmscriptenModule>;
+type NodeCodecModule<D, E> = {
+	loadEncoder(input?: WasmSource): Promise<D>;
+	loadDecoder(input?: WasmSource): Promise<E>;
 };
+
 const distDir = join(dirname(fileURLToPath(import.meta.url)), "../dist");
 
 globalThis._icodec_ImageData = (data, w, h, depth) => {
 	return new PureImageData(data, w, h, depth);
 };
 
-function wrapLoaders<T extends NodeCodecModule>(original: T, e: string, d = e): T {
-	let loadedEnc: Promise<EmscriptenModule> | undefined;
-	let loadedDec: Promise<EmscriptenModule> | undefined;
+function wrapLoaders<D, E>(original: NodeCodecModule<D, E>, e: string, d = e): NodeCodecModule<D, E> {
+	let loadedEnc: Promise<D> | undefined;
+	let loadedDec: Promise<E> | undefined;
 
 	const loadEncoder = (input?: WasmSource) => {
 		if (loadedEnc) return loadedEnc;
@@ -51,7 +52,7 @@ function wrapLoaders<T extends NodeCodecModule>(original: T, e: string, d = e): 
 		return loadedDec;
 	};
 
-	return { ...original, loadEncoder, loadDecoder } as T;
+	return { ...original, loadEncoder, loadDecoder } as NodeCodecModule<D, E>;
 }
 
 export const avif = wrapLoaders(avifRaw, "avif-enc.wasm", "avif-dec.wasm");
