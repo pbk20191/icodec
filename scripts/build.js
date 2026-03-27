@@ -67,6 +67,8 @@ export function buildMozJPEG() {
 	execFileSync("emcc", [
 		"rdswitch.c",
 		"-O3",
+		"-flto",
+		
 		"-c",
 		config.wasm64 ? "-sMEMORY64" : "",
 	], {
@@ -101,6 +103,7 @@ export function buildWebP() {
 		"vendor/libwebp/libwebp.a",
 		"vendor/libwebp/libsharpyuv.a",
 		"--emit-tsd webp-enc.d.ts",
+		// "-sEXPORTED_RUNTIME_METHODS=HEAPU8,WebPImageHint,WebPPreset,WebPConfigPreset,encode",
 	]);
 	emcc("cpp/webp_dec.cpp", [
 		"-I vendor/libwebp",
@@ -404,7 +407,8 @@ function buildHEIC() {
 	emcc("cpp/heic_enc.cpp", [
 		"-I vendor/heic_enc",
 		"-I vendor/libheif/libheif/api",
-		 "-sRETAIN_COMPILER_SETTINGS=1",
+		 "-sASYNCIFY_STACK_SIZE=4096",
+		 "-DASYNCIFY_STACK_SIZE=4096",
 		"-sASYNCIFY_ADD=\"heif_context_encode_image,green_thread_entry(*),gthread_cond_wait,gthread_join,gthread_cond_timedwait,*ThreadShim(*)\"",
 		"-fno-exceptions",
 		"-sASYNCIFY=1",

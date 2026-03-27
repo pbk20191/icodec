@@ -1,4 +1,4 @@
-import wasmFactoryEnc, { EmbindString } from "../dist/mozjpeg.ts";
+import wasmFactory, { EmbindString } from "../dist/mozjpeg.ts";
 import { AsyncFactoryResult, check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export const enum ColorSpace {
@@ -130,10 +130,10 @@ export const bitDepth = [8];
 export const mimeType = "image/jpeg";
 export const extension = "jpg";
 
-let codecWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let codecWASM: AsyncFactoryResult<typeof wasmFactory> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
-	return codecWASM = await loadES(wasmFactoryEnc, input);
+	return codecWASM ??= (await loadES(wasmFactory as any, input) as Exclude<typeof codecWASM, undefined>);
 }
 
 export const loadDecoder = loadEncoder;

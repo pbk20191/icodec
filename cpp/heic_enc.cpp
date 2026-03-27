@@ -294,7 +294,7 @@ struct GreenThread
 
 	GreenThread(void *(*entry)(void *), void *entry_arg)
 		: c_stack(GREEN_C_STACK_SIZE),
-		  asyncify_stack(emscripten_get_compiler_setting("ASYNCIFY_STACK_SIZE")),
+		  asyncify_stack(ASYNCIFY_STACK_SIZE),
 		  start(entry),
 		  arg(entry_arg),
 		  retval(nullptr),
@@ -480,10 +480,9 @@ int gthread_create(pthread_t *thread, const pthread_attr_t *, void *(*start)(voi
 {
 	// ensure_main_thread();
 	GreenThread *t = new GreenThread(start, arg);
-	const long size = emscripten_get_compiler_setting("STACK_SIZE");
+	const long size = 2 * 1024 * 1024;//emscripten_get_compiler_setting("STACK_SIZE");
 	t->c_stack.resize(size);
-	t->asyncify_stack.resize(emscripten_get_compiler_setting("ASYNCIFY_STACK_SIZE"));
-	// t->asyncify_stack.resize(GREEN_ASYNCIFY_STACK_SIZE );
+	t->asyncify_stack.resize(ASYNCIFY_STACK_SIZE);
 	emscripten_fiber_init(
 		&t->fiber,
 		green_thread_entry,

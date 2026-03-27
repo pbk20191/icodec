@@ -82,8 +82,8 @@ export function emcmake(settings) {
 	if (!config.rebuild && existsSync(outFile)) {
 		return;
 	}
-	let linkerFlags = "-lembind";
-	let cxxFlags = "-msimd128 -msse4.2 -mavx2";
+	let linkerFlags = "-lembind -flto";
+	let cxxFlags = "-msimd128 -msse4.2 -mavx2 -flto";
 	if (config.wasm64) {
 		cxxFlags += " -sMEMORY64";
 	}
@@ -146,9 +146,10 @@ export function emcc(input, sourceArguments) {
 		 */
 		"STACK_SIZE=2MB",
 		"DYNAMIC_EXECUTION=0",
-		"USE_CLOSURE_COMPILER=1",
 		"EMBIND_AOT=1",
-		"EXPORTED_RUNTIME_METHODS=HEAP8",
+		"EXPORTED_RUNTIME_METHODS=wasmMemory",
+		// Save ~10KB, but it needs some work on our part.
+		// "MINIMAL_RUNTIME=0",
 	]
 	const args = [
 		config.debug ? "-g" : "-O3",
@@ -162,11 +163,8 @@ export function emcc(input, sourceArguments) {
 		"-std=c++23",
 		"-fno-rtti",
 		"-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-		// Save ~69KB, but may affect performance.
-		// "-s", "MALLOC=emmalloc",
-
-		// Save ~10KB, but it needs some work on our part.
-		// "-s", "MINIMAL_RUNTIME=1",
+		// "--emit-symbol-map",
+		// "--profiling",
 	];
 	if (config.wasm64) {
 		options.push("MEMORY64=1");

@@ -7,7 +7,7 @@ import { getRawPixels, getSnapshot } from "./fixtures.js";
 const runs = 60;
 
 function getMemoryBuffer(wasm) {
-	return (wasm.HEAP8 ?? wasm.memory).buffer;
+	return (wasm.wasmMemory ?? wasm.memory).buffer;
 }
 
 async function testEncodeLeak() {

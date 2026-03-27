@@ -12,15 +12,21 @@ export type EnumValue<E> = E[Extract<keyof E, string>];
 export type AsyncFactoryResult<T extends (...args: any[]) => any> =
   Awaited<ReturnType<T>>;
   
-export function loadES<T extends EmscriptenModule>(factory: EmscriptenModuleFactory<T>, source?: WasmSource) {
+export function loadES<T extends EmscriptenModule>(factory: EmscriptenModuleFactory<T>, source?: WasmSource, module?: Partial<T>) {
+	if (!module) module = {};
 	if (typeof source === "string") {
-		const locateFile = (url: string, scriptDirectory: string) => source;
-		return factory({ locateFile } as any);
+		const locateFile:EmscriptenModule["locateFile"] = (url: string, scriptDirectory: string) => {
+//			console.log(`Locating WASM file for ${url} in ${scriptDirectory}`, source);
+			return source;
+		};
+		module.locateFile = locateFile;
+		return factory(module);
 	}
 	if (source === undefined) {
-		return factory();
+		return factory(module);
 	}
-	return factory({ wasmBinary: source as ArrayBuffer } as any);
+	module.wasmBinary = source as ArrayBuffer;
+	return factory(module);
 }
 
 export interface ImageDataLike {

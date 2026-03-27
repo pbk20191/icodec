@@ -221,11 +221,11 @@ let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
 let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
-	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
+	return encoderWASM ??= (await loadES(wasmFactoryEnc as any, input) as Exclude<typeof encoderWASM, undefined>);
 }
 
 export async function loadDecoder(input?: WasmSource) {
-	return decoderWASM ??= await loadES(wasmFactoryDec, input);
+	return decoderWASM ??= (await loadES(wasmFactoryDec as any, input) as Exclude<typeof decoderWASM, undefined>);
 }
 
 export function encode(image: ImageDataLike, options?: Options) {

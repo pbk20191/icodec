@@ -1,6 +1,6 @@
 import wasmFactoryEnc, { MainModule as EncoderModule } from "../dist/avif-enc.ts";
 import wasmFactoryDec, { MainModule as DecoderModule, EmbindString } from "../dist/avif-dec.ts";
-import { check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
+import { AsyncFactoryResult, check, encodeES, EnumValue, ImageDataLike, loadES, WasmSource } from "./common.ts";
 
 export enum Subsampling {
 	YUV444 = 1,
@@ -115,17 +115,15 @@ export const mimeType = "image/avif";
 export const extension = "avif";
 export const bitDepth = [8, 10, 12, 16];
 
-let encoderWASM: Awaited<ReturnType<typeof wasmFactoryEnc>> | undefined;
-let decoderWASM: Awaited<ReturnType<typeof wasmFactoryDec>> | undefined;
-
-
+let encoderWASM: AsyncFactoryResult<typeof wasmFactoryEnc> | undefined;
+let decoderWASM: AsyncFactoryResult<typeof wasmFactoryDec> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
-	return encoderWASM ??= await loadES(wasmFactoryEnc, input);
+	return encoderWASM ??= (await loadES(wasmFactoryEnc as any, input) as unknown as Exclude<typeof encoderWASM, undefined>);
 }
 
 export async function loadDecoder(input?: WasmSource) {
-	return decoderWASM ??= await loadES(wasmFactoryDec, input);
+	return decoderWASM ??= (await loadES(wasmFactoryDec as any, input) as unknown as Exclude<typeof decoderWASM, undefined>);
 }
 
 export function encode(image: ImageDataLike, options?: Options) {

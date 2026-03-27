@@ -15,7 +15,7 @@ export const extension = "qoi";
 let codecWASM: AsyncFactoryResult<typeof wasmFactory> | undefined;
 
 export async function loadEncoder(input?: WasmSource) {
-	return codecWASM = await loadES(wasmFactory, input);
+	return codecWASM ??= (await loadES(wasmFactory as any, input) as Exclude<typeof codecWASM, undefined>);
 }
 
 export const loadDecoder = loadEncoder;
