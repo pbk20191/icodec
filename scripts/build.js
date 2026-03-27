@@ -86,6 +86,7 @@ export function buildPNGQuant() {
 	wasmPack("rust");
 	// `--out-dir` cannot be out of the rust workspace.
 	renameSync("rust/pkg/pngquant.js", `${config.outDir}/pngquant.js`);
+	renameSync("rust/pkg/pngquant.d.ts", `${config.outDir}/pngquant.d.ts`);
 	renameSync("rust/pkg/pngquant_bg.wasm", `${config.outDir}/pngquant_bg.wasm`);
 }
 
