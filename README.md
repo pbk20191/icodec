@@ -116,7 +116,7 @@ icodec is aimed at the web platform and has some limitations:
 Requirement: The target environment must support [WebAssembly SIMD](https://caniuse.com/wasm-simd).
 
 ```shell
-pnpm add icodec
+npm install @pbk20191/icodec
 ```
 
 Use in browser:
