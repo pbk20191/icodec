@@ -63,13 +63,16 @@ void encode(std::string pixels, int width, int height, HeicOptions options, val 
 	
 	uint8_t *p = heif_image_get_plane2(image.get(), heif_channel_interleaved, &stride);
 	// emscripten_log(EM_LOG_CONSOLE, "HEIC image plane stride: %zu %zu", stride, width * 4);
-	if (stride == width * 4) {
-		memcpy(p, &pixels, width * height * 4);
+	if (stride == static_cast<size_t>(row_bytes)) {
+        memcpy(p, pixels.data(), static_cast<size_t>(row_bytes) * height);
 	} else {
-		for (auto y = 0; y < height; y++)
-		{
-			memcpy(p + stride * y, &pixels[row_bytes * y], stride);
-		}
+        for (int y = 0; y < height; y++) {
+            memcpy(
+                p + stride * y,
+                reinterpret_cast<const uint8_t*>(pixels.data()) + static_cast<size_t>(row_bytes) * y,
+                row_bytes
+            );
+        }
 	}
 
 
